@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase/client"
 import { VocabularyCard, type Vocabulary } from "./vocabulary-card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -45,19 +44,9 @@ export function VocabularyList({ onUpdate }: VocabularyListProps) {
 
   const loadVocabularies = async () => {
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
-      if (!user) return
-
-      const { data, error } = await supabase
-        .from("vocabularies")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-
-      if (error) throw error
+      const res = await fetch("/api/vocabulary")
+      if (!res.ok) throw new Error("Failed to load vocabularies")
+      const data = (await res.json()) as Vocabulary[]
 
       setVocabularies(data || [])
       
@@ -116,9 +105,8 @@ export function VocabularyList({ onUpdate }: VocabularyListProps) {
     if (!confirm("Are you sure you want to delete this word?")) return
 
     try {
-      const { error } = await supabase.from("vocabularies").delete().eq("id", id)
-
-      if (error) throw error
+      const res = await fetch(`/api/vocabulary/${id}`, { method: "DELETE" })
+      if (!res.ok) throw new Error("Failed to delete")
 
       await loadVocabularies()
       onUpdate?.()

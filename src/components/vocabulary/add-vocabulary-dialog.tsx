@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { supabase } from "@/lib/supabase/client"
 import {
   Dialog,
   DialogContent,
@@ -87,24 +86,11 @@ export function AddVocabularyDialog({
 
   const loadCategories = async () => {
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+      const res = await fetch("/api/vocabulary/categories")
+      if (!res.ok) throw new Error("Failed to load categories")
+      const data = (await res.json()) as { categories: string[] }
 
-      if (!user) return
-
-      const { data, error } = await supabase
-        .from("vocabularies")
-        .select("category")
-        .eq("user_id", user.id)
-        .not("category", "is", null)
-
-      if (error) throw error
-
-      // Extract unique categories from database
-      const dbCategories = Array.from(
-        new Set(data?.map((v) => v.category).filter(Boolean) || [])
-      ).sort()
+      const dbCategories = (data.categories || []).sort()
 
       // Combine with default categories, remove duplicates, and sort
       const allCategories = Array.from(
@@ -171,43 +157,36 @@ export function AddVocabularyDialog({
     setLoading(true)
 
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
-      if (!user) {
-        throw new Error("User not authenticated")
-      }
-
       if (vocabulary) {
         // Update existing vocabulary
-        const { error } = await supabase
-          .from("vocabularies")
-          .update({
+        const res = await fetch(`/api/vocabulary/${vocabulary.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
             word: word.trim(),
             ipa: ipa.trim() || null,
             definition: definition.trim() || null,
             example: example.trim() || null,
             category: finalCategory,
             difficulty,
-          })
-          .eq("id", vocabulary.id)
-          .eq("user_id", user.id)
-
-        if (error) throw error
+          }),
+        })
+        if (!res.ok) throw new Error("Failed to update vocabulary")
       } else {
         // Create new vocabulary
-        const { error } = await supabase.from("vocabularies").insert({
-          word: word.trim(),
-          ipa: ipa.trim() || null,
-          definition: definition.trim() || null,
-          example: example.trim() || null,
-          category: finalCategory,
-          difficulty,
-          user_id: user.id,
+        const res = await fetch("/api/vocabulary", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            word: word.trim(),
+            ipa: ipa.trim() || null,
+            definition: definition.trim() || null,
+            example: example.trim() || null,
+            category: finalCategory,
+            difficulty,
+          }),
         })
-
-        if (error) throw error
+        if (!res.ok) throw new Error("Failed to create vocabulary")
       }
 
       resetForm()

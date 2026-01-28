@@ -1,10 +1,11 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { supabase } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { LogOut, BookOpen } from "lucide-react"
+import Link from "next/link"
+import { routes } from "@/shared/constants/routes"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,7 +19,7 @@ export function Navbar() {
   const router = useRouter()
 
   const handleLogout = async () => {
-    await supabase.auth.signOut()
+    await fetch("/api/auth/logout", { method: "POST" })
     router.push("/auth/login")
     router.refresh()
   }
@@ -42,6 +43,10 @@ export function Navbar() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href={routes.profile}>Profile</Link>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
                 <LogOut className="mr-2 h-4 w-4" />

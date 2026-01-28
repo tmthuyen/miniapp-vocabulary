@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Volume2, Edit, Trash2, ChevronDown, ChevronUp } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn } from "@/shared/utils/cn"
 
 export interface Vocabulary {
   id: string

@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { supabase } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -19,12 +18,15 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       })
-
-      if (error) throw error
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        throw new Error(body.message || "Failed to sign in")
+      }
 
       // Wait a bit for session to be set in cookies
       await new Promise((resolve) => setTimeout(resolve, 100))

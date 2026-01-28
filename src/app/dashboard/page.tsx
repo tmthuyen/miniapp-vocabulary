@@ -1,13 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase/client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { VocabularyList } from "@/components/vocabulary/vocabulary-list"
-import { AddVocabularyDialog } from "@/components/vocabulary/add-vocabulary-dialog"
+import { VocabularyList, AddVocabularyDialog } from "@/presentation/components/features/vocabulary"
 
 interface VocabularyStats {
   totalToday: number
@@ -26,11 +24,9 @@ export default function DashboardPage() {
 
   const loadStats = async () => {
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
-      if (!user) {
+      const me = await fetch("/api/auth/me")
+      const meBody = (await me.json().catch(() => ({ user: null }))) as { user: { id: string } | null }
+      if (!meBody.user) {
         router.push("/auth/login")
         return
       }
@@ -38,21 +34,15 @@ export default function DashboardPage() {
       const today = new Date()
       today.setHours(0, 0, 0, 0)
 
-      const { data: allTime } = await supabase
-        .from("vocabularies")
-        .select("id", { count: "exact" })
-        .eq("user_id", user.id)
+      // Keep existing behavior but compute via API list (simple + consistent with new architecture)
+      const res = await fetch("/api/vocabulary")
+      if (!res.ok) throw new Error("Failed to load vocabularies")
+      const list = (await res.json()) as Array<{ id: string; created_at: string }>
 
-      const { data: todayData } = await supabase
-        .from("vocabularies")
-        .select("id", { count: "exact" })
-        .eq("user_id", user.id)
-        .gte("created_at", today.toISOString())
+      const totalAllTime = list.length
+      const totalToday = list.filter((v) => new Date(v.created_at) >= today).length
 
-      setStats({
-        totalToday: todayData?.length || 0,
-        totalAllTime: allTime?.length || 0,
-      })
+      setStats({ totalToday, totalAllTime })
     } catch (error) {
       console.error("Error loading stats:", error)
     } finally {
