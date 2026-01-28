@@ -1,26 +1,140 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  /* Fonts */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  
+  /* Colors - Map HSL values directly for Tailwind v4 */
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  
+  /* Border Radius */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  /* --- LIGHT MODE: Emerald/Teal Theme - Dễ nhìn, Professional --- */
+  --radius: 0.75rem; /* Bo góc 12px (Modern rounded) */
+  
+  --background: 0 0% 100%;       /* Trắng tinh khiết */
+  --foreground: 222.2 47.4% 11.2%;  /* Chữ đậm nhưng không quá đen - dễ đọc */
+
+  /* Card (Thẻ từ vựng) - Nổi bật nhẹ trên nền */
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 47.4% 11.2%;
+
+  /* Popover (Menu bật ra) */
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 47.4% 11.2%;
+
+  /* Primary (Màu chủ đạo): Emerald/Teal - Xanh lá ngọc, dễ nhìn */
+  --primary: 173 80% 40%;  /* Emerald-600 */
+  --primary-foreground: 0 0% 100%;
+
+  /* Secondary: Màu phụ trợ (Xám nhạt) */
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+
+  /* Muted: Dành cho text phụ (Ví dụ: phiên âm IPA) */
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+
+  /* Accent: Emerald accent */
+  --accent: 173 80% 40%;
+  --accent-foreground: 0 0% 100%;
+
+  /* Destructive: Màu đỏ cảnh báo (Nút xóa) */
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 100%;
+
+  /* Border & Input lines */
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 173 80% 40%;
+}
+
+.dark {
+  /* --- DARK MODE: Sâu thẳm, dịu mắt, "Cyberpunk" nhẹ --- */
+  --background: 222.2 84% 4.9%;  /* Xám xanh rất đậm (Slate-950) - Sang hơn màu đen */
+  --foreground: 210 40% 98%;     /* Chữ trắng đục dịu mắt */
+
+  --card: 222.2 84% 4.9%;        /* Nền thẻ trùng nền web để tạo cảm giác phẳng (hoặc chỉnh sáng hơn xíu) */
+  --card-foreground: 210 40% 98%;
+
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+
+  /* Primary Dark: Emerald sáng hơn cho dark mode - Dễ nhìn */
+  --primary: 173 80% 50%; /* Emerald-500 */
+  --primary-foreground: 222.2 47.4% 11.2%;
+
+  --secondary: 217.2 32.6% 17.5%; /* Xám tối cho các nút phụ */
+  --secondary-foreground: 210 40% 98%;
+
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%; /* Màu xám lông chuột cho text phụ */
+
+  --accent: 173 80% 50%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+
+  --border: 217.2 32.6% 17.5%; /* Đường viền tối, tinh tế */
+  --input: 217.2 32.6% 17.5%;
+  --ring: 173 80% 50%;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    @apply bg-background text-foreground;
+    /* Loại bỏ gradient trong suốt - dùng màu solid */
+  }
+  /* Cards phải có background đậm, không trong suốt */
+  .card,
+  [class*="Card"],
+  [class*="card"] {
+    @apply bg-card;
+    backdrop-filter: none;
+  }
+  /* Modal/Dialog phải nổi bật hơn */
+  [role="dialog"],
+  [data-radix-dialog-content] {
+    @apply bg-popover;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+  .dark [role="dialog"],
+  .dark [data-radix-dialog-content] {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+  }
 }

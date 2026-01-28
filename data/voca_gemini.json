@@ -1,0 +1,137 @@
+[
+    {
+      "word": "Obsolescence",
+      "ipa": "/ˌɒb.səˈles.əns/",
+      "definition": "Sự lỗi thời (quá trình trở nên không còn hữu dụng).",
+      "example": "Built-in obsolescence ensures that consumers keep buying new products.",
+      "category": "Technology",
+      "difficulty": "Hard",
+      "user_id": "443720d6-49bf-4bea-bf5b-0c894733cde9"
+    },
+    {
+      "word": "Augmented Reality",
+      "ipa": "/ɔːɡˈmen.tɪd riˈæl.ə.ti/",
+      "definition": "Thực tế ảo tăng cường (công nghệ kết hợp ảo và thực).",
+      "example": "Augmented reality apps are transforming the retail shopping experience.",
+      "category": "Technology",
+      "difficulty": "Medium",
+      "user_id": "443720d6-49bf-4bea-bf5b-0c894733cde9"
+    },
+    {
+      "word": "Disruptive",
+      "ipa": "/dɪsˈrʌp.tɪv/",
+      "definition": "Mang tính đột phá, làm thay đổi hoàn toàn trật tự cũ.",
+      "example": "Uber is a prime example of a disruptive technology in the transport sector.",
+      "category": "Business",
+      "difficulty": "Hard",
+      "user_id": "443720d6-49bf-4bea-bf5b-0c894733cde9"
+    },
+    {
+      "word": "Algorithm",
+      "ipa": "/ˈæl.ɡə.rɪ.ðəm/",
+      "definition": "Thuật toán (tập hợp các quy tắc để tính toán).",
+      "example": "Social media platforms use complex algorithms to curate content for users.",
+      "category": "IT",
+      "difficulty": "Medium",
+      "user_id": "443720d6-49bf-4bea-bf5b-0c894733cde9"
+    },
+    {
+      "word": "Intuitive",
+      "ipa": "/ɪnˈtʃuː.ɪ.tɪv/",
+      "definition": "Trực quan, dễ sử dụng mà không cần hướng dẫn.",
+      "example": "Apple is famous for creating intuitive user interfaces.",
+      "category": "Design",
+      "difficulty": "Medium",
+      "user_id": "443720d6-49bf-4bea-bf5b-0c894733cde9"
+    },
+    {
+      "word": "Encryption",
+      "ipa": "/ɪnˈkrɪp.ʃən/",
+      "definition": "Sự mã hóa dữ liệu.",
+      "example": "End-to-end encryption ensures that only the sender and receiver can read the messages.",
+      "category": "Security",
+      "difficulty": "Hard",
+      "user_id": "443720d6-49bf-4bea-bf5b-0c894733cde9"
+    },
+    {
+      "word": "Bandwidth",
+      "ipa": "/ˈbænd.wɪtθ/",
+      "definition": "Băng thông (lượng dữ liệu truyền tải được).",
+      "example": "Streaming 4K video requires a high internet bandwidth.",
+      "category": "Network",
+      "difficulty": "Medium",
+      "user_id": "443720d6-49bf-4bea-bf5b-0c894733cde9"
+    },
+    {
+      "word": "Glitch",
+      "ipa": "/ɡlɪtʃ/",
+      "definition": "Sự cố kỹ thuật nhỏ, trục trặc tạm thời.",
+      "example": "A technical glitch caused the website to go offline for ten minutes.",
+      "category": "IT",
+      "difficulty": "Easy",
+      "user_id": "443720d6-49bf-4bea-bf5b-0c894733cde9"
+    },
+    {
+      "word": "Interface",
+      "ipa": "/ˈɪn.tə.feɪs/",
+      "definition": "Giao diện (nơi tương tác giữa người và máy).",
+      "example": "The user interface should be clean and easy to navigate.",
+      "category": "Technology",
+      "difficulty": "Easy",
+      "user_id": "443720d6-49bf-4bea-bf5b-0c894733cde9"
+    },
+    {
+      "word": "Cutting-edge",
+      "ipa": "/ˌkʌt.ɪŋ ˈedʒ/",
+      "definition": "Tiên tiến nhất, hiện đại nhất.",
+      "example": "This laboratory conducts cutting-edge research in genetics.",
+      "category": "Science",
+      "difficulty": "Hard",
+      "user_id": "443720d6-49bf-4bea-bf5b-0c894733cde9"
+    },
+    {
+      "word": "Digital Footprint",
+      "ipa": "/ˌdɪdʒ.ɪ.təl ˈfʊt.prɪnt/",
+      "definition": "Dấu chân số (dấu vết để lại trên mạng).",
+      "example": "You should be careful about your digital footprint when posting on social media.",
+      "category": "Internet",
+      "difficulty": "Medium",
+      "user_id": "443720d6-49bf-4bea-bf5b-0c894733cde9"
+    },
+    {
+      "word": "Cloud Computing",
+      "ipa": "/ˌklaʊd kəmˈpjuː.tɪŋ/",
+      "definition": "Điện toán đám mây.",
+      "example": "Cloud computing allows businesses to scale their operations easily.",
+      "category": "Technology",
+      "difficulty": "Medium",
+      "user_id": "443720d6-49bf-4bea-bf5b-0c894733cde9"
+    },
+    {
+      "word": "Gadget",
+      "ipa": "/ˈɡædʒ.ɪt/",
+      "definition": "Đồ công nghệ nhỏ, tiện ích.",
+      "example": "He loves buying the latest kitchen gadgets.",
+      "category": "Technology",
+      "difficulty": "Easy",
+      "user_id": "443720d6-49bf-4bea-bf5b-0c894733cde9"
+    },
+    {
+      "word": "Tech-savvy",
+      "ipa": "/ˈtek ˌsæv.i/",
+      "definition": "Am hiểu công nghệ, rành công nghệ.",
+      "example": "The younger generation is generally more tech-savvy than their parents.",
+      "category": "General",
+      "difficulty": "Medium",
+      "user_id": "443720d6-49bf-4bea-bf5b-0c894733cde9"
+    },
+    {
+      "word": "Biometrics",
+      "ipa": "/ˌbaɪ.əʊˈmet.rɪks/",
+      "definition": "Sinh trắc học (vân tay, mống mắt...).",
+      "example": "Biometrics such as fingerprint scanning are used for high-security access.",
+      "category": "Security",
+      "difficulty": "Hard",
+      "user_id": "443720d6-49bf-4bea-bf5b-0c894733cde9"
+    }
+  ]
