@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { VocabularyCard, type Vocabulary } from "./vocabulary-card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -37,11 +37,6 @@ export function VocabularyList({ onUpdate }: VocabularyListProps) {
     loadVocabularies()
   }, [])
 
-  useEffect(() => {
-    filterVocabularies()
-    setCurrentPage(1) // Reset to first page when filters change
-  }, [searchQuery, selectedCategories, vocabularies])
-
   const loadVocabularies = async () => {
     try {
       const res = await fetch("/api/vocabulary")
@@ -62,7 +57,7 @@ export function VocabularyList({ onUpdate }: VocabularyListProps) {
     }
   }
 
-  const filterVocabularies = () => {
+  const filterVocabularies = useCallback(() => {
     let filtered = vocabularies
 
     // Filter by categories (multi-select)
@@ -84,7 +79,12 @@ export function VocabularyList({ onUpdate }: VocabularyListProps) {
     }
 
     setFilteredVocabularies(filtered)
-  }
+  }, [vocabularies, selectedCategories, searchQuery])
+
+  useEffect(() => {
+    filterVocabularies()
+    setCurrentPage(1) // Reset to first page when filters change
+  }, [filterVocabularies])
 
   const toggleCategory = (category: string) => {
     const newSelected = new Set(selectedCategories)

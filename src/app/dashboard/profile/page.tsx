@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { routes } from "@/shared/constants/routes"
-import { useRouter } from "next/navigation"
+import { useRouter } from "next/navigation" 
 
 type ProfileDTO = {
   id: string
@@ -38,8 +38,9 @@ export default function ProfilePage() {
         setProfile(data)
         setFullName(data.full_name ?? "")
         setTargetBand(data.target_band?.toString() ?? "")
-      } catch (e: any) {
-        setError(e.message ?? "Failed to load profile")
+      } catch (e: unknown) {
+        const message = e instanceof Error ? e.message : "Failed to load profile"
+        setError(message)
       } finally {
         setLoading(false)
       }
@@ -62,8 +63,9 @@ export default function ProfilePage() {
       if (!res.ok) throw new Error("Failed to save profile")
       const updated = (await res.json()) as ProfileDTO
       setProfile(updated)
-    } catch (e: any) {
-      setError(e.message ?? "Failed to save profile")
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Failed to save profile"
+      setError(message)
     } finally {
       setSaving(false)
     }

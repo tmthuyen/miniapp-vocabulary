@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     definition: body.definition ?? null,
     example: body.example ?? null,
     category: body.category ?? "General",
-    difficulty: (body.difficulty as any) ?? "Medium",
+    difficulty: (body.difficulty as "Easy" | "Medium" | "Hard") ?? "Medium",
   })
 
   return Response.json(created.toDTO())

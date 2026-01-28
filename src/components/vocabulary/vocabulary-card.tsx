@@ -114,7 +114,7 @@ export function VocabularyCard({ vocabulary, onEdit, onDelete }: VocabularyCardP
             <div>
               <p className="text-sm font-medium mb-1">Example:</p>
               <p className="text-sm text-muted-foreground italic">
-                "{vocabulary.example}"
+                `\&quot;{vocabulary.example}\&quot;`
               </p>
             </div>
           )}

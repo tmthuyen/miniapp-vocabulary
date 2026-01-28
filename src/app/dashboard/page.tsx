@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
@@ -18,11 +18,8 @@ export default function DashboardPage() {
   const [addDialogOpen, setAddDialogOpen] = useState(false)
   const router = useRouter()
 
-  useEffect(() => {
-    loadStats()
-  }, [])
 
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     try {
       const me = await fetch("/api/auth/me")
       const meBody = (await me.json().catch(() => ({ user: null }))) as { user: { id: string } | null }
@@ -48,7 +45,11 @@ export default function DashboardPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [router])
+
+  useEffect(() => { 
+    loadStats()
+  }, [loadStats])
 
   return (
     <div className="space-y-8">
