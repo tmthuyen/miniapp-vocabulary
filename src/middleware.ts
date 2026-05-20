@@ -1,34 +1,21 @@
-import { NextResponse, type NextRequest } from 'next/server'
-import { createSupabaseMiddlewareClient } from "@/infrastructure/database/supabase/middlewareClient"
+﻿import { NextResponse, type NextRequest } from "next/server"
 
-export async function middleware(request: NextRequest) {
-  const { supabase, response } = createSupabaseMiddlewareClient(request)
+export function middleware(request: NextRequest) {
+  const token = request.cookies.get("session_token")?.value
+  const pathname = request.nextUrl.pathname
+  const hasSessionCookie = Boolean(token)
 
-  // Refresh session to ensure it's up to date
-  await supabase.auth.getSession()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  // Protect dashboard routes
-  if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {
-    return NextResponse.redirect(new URL('/auth/login', request.url))
+  if (pathname.startsWith("/dashboard") && !hasSessionCookie) {
+    return NextResponse.redirect(new URL("/auth/login", request.url))
   }
 
-  // Redirect authenticated users away from auth pages
-  if (request.nextUrl.pathname.startsWith('/auth') && user) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+  if (pathname.startsWith("/auth") && hasSessionCookie) {
+    return NextResponse.redirect(new URL("/dashboard", request.url))
   }
 
-  return response
+  return NextResponse.next()
 }
 
 export const config = {
-  matcher: [
-    '/dashboard/:path*',
-    '/auth/:path*',
-  ],
+  matcher: ["/dashboard/:path*", "/auth/:path*"],
 }
-
-

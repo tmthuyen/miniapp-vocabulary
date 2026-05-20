@@ -1,15 +1,19 @@
+﻿import { createUser, signIn } from "@/infrastructure/auth/prismaAuth"
+
 export async function POST(req: Request) {
-  const { createNextRouteContainer } = await import("@/infrastructure/di/nextRouteContainer")
-  const di = await createNextRouteContainer()
+  const body = (await req.json()) as { email?: string; password?: string }
+  const email = body.email?.trim().toLowerCase() ?? ""
+  const password = body.password ?? ""
+
+  if (!email || !password || password.length < 6) {
+    return Response.json({ message: "Invalid signup data" }, { status: 400 })
+  }
 
   try {
-    const { email, password } = (await req.json()) as { email?: string; password?: string }
-    const user = await di.auth.signup.execute({ email: email ?? "", password: password ?? "" })
-    return Response.json({ ok: true, user })
-  } catch (e: unknown) {
-    const message = e instanceof Error ? e.message : "Failed to sign up"
-    return Response.json({ message }, { status: 400 })
+    await createUser(email, password)
+    await signIn(email, password)
+    return Response.json({ ok: true })
+  } catch {
+    return Response.json({ message: "Email already exists" }, { status: 409 })
   }
 }
-
-

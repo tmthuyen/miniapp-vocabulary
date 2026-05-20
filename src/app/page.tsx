@@ -1,15 +1,8 @@
-import { redirect } from "next/navigation"
-import { createClient } from "@/lib/supabase/server"
+﻿import { redirect } from "next/navigation"
+import { getCurrentUser } from "@/infrastructure/auth/prismaAuth"
 
 export default async function Home() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (user) {
-    redirect("/dashboard")
-  } else {
-    redirect("/auth/login")
-  }
+  const user = await getCurrentUser()
+  if (user) redirect("/dashboard")
+  redirect("/auth/login")
 }

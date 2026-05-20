@@ -1,10 +1,10 @@
-export async function GET() {
-  const { createNextRouteContainer } = await import("@/infrastructure/di/nextRouteContainer")
-  const di = await createNextRouteContainer()
-  const user = await di.auth.getCurrentUser.execute()
-  if (!user) return Response.json({ message: "Unauthorized" }, { status: 401 })
+import { requireUser } from "@/infrastructure/api/next/requireUser"
 
-  const categories = await di.vocabulary.getCategories.execute(user.id)
+export async function GET() {
+  const auth = await requireUser()
+  if (!auth.ok) return Response.json({ message: auth.message }, { status: auth.status })
+
+  const categories = await auth.di.vocabulary.getCategories.execute(auth.userId)
   return Response.json({ categories })
 }
 

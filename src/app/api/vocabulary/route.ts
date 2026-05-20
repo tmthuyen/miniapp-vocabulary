@@ -1,34 +1,26 @@
+﻿import { requireAdmin, requireUser } from "@/infrastructure/api/next/requireUser"
 import type { CreateVocabularyInput } from "@/core/interfaces/repositories/IVocabularyRepository"
 
 export async function GET() {
-  const { createNextRouteContainer } = await import("@/infrastructure/di/nextRouteContainer")
-  const di = await createNextRouteContainer()
-  const user = await di.auth.getCurrentUser.execute()
-  if (!user) return Response.json({ message: "Unauthorized" }, { status: 401 })
-
-  const list = await di.vocabulary.getList.execute(user.id)
-
+  const auth = await requireUser()
+  if (!auth.ok) return Response.json({ message: auth.message }, { status: auth.status })
+  const list = await auth.di.vocabulary.getList.execute(auth.userId)
   return Response.json(list.map((v) => v.toDTO()))
 }
 
 export async function POST(req: Request) {
-  const { createNextRouteContainer } = await import("@/infrastructure/di/nextRouteContainer")
-  const di = await createNextRouteContainer()
-  const user = await di.auth.getCurrentUser.execute()
-  if (!user) return Response.json({ message: "Unauthorized" }, { status: 401 })
+  const auth = await requireAdmin()
+  if (!auth.ok) return Response.json({ message: auth.message }, { status: auth.status })
 
   const body = (await req.json()) as Partial<CreateVocabularyInput>
-
-  const created = await di.vocabulary.create.execute(user.id, {
+  const created = await auth.di.vocabulary.create.execute(auth.userId, {
     word: body.word ?? "",
     ipa: body.ipa ?? null,
     definition: body.definition ?? null,
     example: body.example ?? null,
     category: body.category ?? "General",
-    difficulty: (body.difficulty as "Easy" | "Medium" | "Hard") ?? "Medium",
+    difficulty: (body.difficulty as any) ?? "Medium",
   })
 
   return Response.json(created.toDTO())
 }
-
-

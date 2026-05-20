@@ -1,32 +1,29 @@
+﻿import { requireAdmin, requireUser } from "@/infrastructure/api/next/requireUser"
 import type { UpdateVocabularyInput } from "@/core/interfaces/repositories/IVocabularyRepository"
 
-interface Params {
-  params: Promise<{ id: string }>
-}
-
-export async function PUT(req: Request, { params }: Params) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const auth = await requireAdmin()
+  if (!auth.ok) return Response.json({ message: auth.message }, { status: auth.status })
   const { id } = await params
-  const { createNextRouteContainer } = await import("@/infrastructure/di/nextRouteContainer")
-  const di = await createNextRouteContainer()
-  const user = await di.auth.getCurrentUser.execute()
-  if (!user) return Response.json({ message: "Unauthorized" }, { status: 401 })
-
-  const body = (await req.json()) as Partial<UpdateVocabularyInput>
-  const updated = await di.vocabulary.update.execute(user.id, id, body)
-
+  const body = (await req.json()) as UpdateVocabularyInput
+  const updated = await auth.di.vocabulary.update.execute(auth.userId, id, body)
   return Response.json(updated.toDTO())
 }
 
-export async function DELETE(_req: Request, { params }: Params) {
+export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const auth = await requireAdmin()
+  if (!auth.ok) return Response.json({ message: auth.message }, { status: auth.status })
   const { id } = await params
-  const { createNextRouteContainer } = await import("@/infrastructure/di/nextRouteContainer")
-  const di = await createNextRouteContainer()
-  const user = await di.auth.getCurrentUser.execute()
-  if (!user) return Response.json({ message: "Unauthorized" }, { status: 401 })
-
-  await di.vocabulary.delete.execute(user.id, id)
-
+  await auth.di.vocabulary.delete.execute(auth.userId, id)
   return Response.json({ ok: true })
 }
 
-
+export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const auth = await requireUser()
+  if (!auth.ok) return Response.json({ message: auth.message }, { status: auth.status })
+  const { id } = await params
+  const list = await auth.di.vocabulary.getList.execute(auth.userId)
+  const found = list.find((v) => v.toDTO().id === id)
+  if (!found) return Response.json({ message: "Not found" }, { status: 404 })
+  return Response.json(found.toDTO())
+}

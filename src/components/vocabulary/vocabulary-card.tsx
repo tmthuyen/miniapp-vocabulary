@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Volume2, Edit, Trash2, ChevronDown, ChevronUp } from "lucide-react"
-import { cn } from "@/shared/utils/cn"
+import { cn } from "@/lib/utils"
 
 export interface Vocabulary {
   id: string
@@ -114,7 +114,7 @@ export function VocabularyCard({ vocabulary, onEdit, onDelete }: VocabularyCardP
             <div>
               <p className="text-sm font-medium mb-1">Example:</p>
               <p className="text-sm text-muted-foreground italic">
-                `\&quot;{vocabulary.example}\&quot;`
+                "{vocabulary.example}"
               </p>
             </div>
           )}

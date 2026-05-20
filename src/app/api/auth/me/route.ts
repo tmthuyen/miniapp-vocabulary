@@ -1,8 +1,7 @@
+﻿import { getCurrentUser } from "@/infrastructure/auth/prismaAuth"
+
 export async function GET() {
-  const { createNextRouteContainer } = await import("@/infrastructure/di/nextRouteContainer")
-  const di = await createNextRouteContainer()
-  const user = await di.auth.getCurrentUser.execute()
-  return Response.json({ user })
+  const user = await getCurrentUser()
+  if (!user) return Response.json({ user: null }, { status: 200 })
+  return Response.json({ user: { id: user.id, email: user.email } })
 }
-
-

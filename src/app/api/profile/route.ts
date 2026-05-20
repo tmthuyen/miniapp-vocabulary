@@ -1,23 +1,20 @@
+import { requireUser } from "@/infrastructure/api/next/requireUser"
 import type { UpdateUserProfileInput } from "@/core/interfaces/repositories/IUserProfileRepository"
 
 export async function GET() {
-  const { createNextRouteContainer } = await import("@/infrastructure/di/nextRouteContainer")
-  const di = await createNextRouteContainer()
-  const user = await di.auth.getCurrentUser.execute()
-  if (!user) return Response.json({ message: "Unauthorized" }, { status: 401 })
+  const auth = await requireUser()
+  if (!auth.ok) return Response.json({ message: auth.message }, { status: auth.status })
 
-  const profile = await di.profile.getMyProfile.execute(user.id)
+  const profile = await auth.di.profile.getMyProfile.execute(auth.userId)
   return Response.json(profile.toDTO())
 }
 
 export async function PUT(req: Request) {
   const body = (await req.json()) as UpdateUserProfileInput
-  const { createNextRouteContainer } = await import("@/infrastructure/di/nextRouteContainer")
-  const di = await createNextRouteContainer()
-  const user = await di.auth.getCurrentUser.execute()
-  if (!user) return Response.json({ message: "Unauthorized" }, { status: 401 })
+  const auth = await requireUser()
+  if (!auth.ok) return Response.json({ message: auth.message }, { status: auth.status })
 
-  const updated = await di.profile.updateMyProfile.execute(user.id, body)
+  const updated = await auth.di.profile.updateMyProfile.execute(auth.userId, body)
   return Response.json(updated.toDTO())
 }
 
