@@ -10,6 +10,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   return Response.json(updated.toDTO())
 }
 
+export async function PUT(req: Request, ctx: { params: Promise<{ id: string }> }) {
+  return PATCH(req, ctx)
+}
+
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireAdmin()
   if (!auth.ok) return Response.json({ message: auth.message }, { status: auth.status })

@@ -8,7 +8,7 @@ export const themePresets = {
   // Theme 1: Modern Emerald/Teal (Đề xuất - Dễ nhìn nhất)
   emerald: {
     light: {
-      background: "0 0% 100%", // Trắng tinh khiết
+      background: "0 0% 99%", // Trắng dịu, giảm độ gắt
       foreground: "222.2 47.4% 11.2%", // Chữ đậm nhưng không quá đen
       
       card: "0 0% 100%",
@@ -17,53 +17,53 @@ export const themePresets = {
       popover: "0 0% 100%",
       popoverForeground: "222.2 47.4% 11.2%",
       
-      primary: "173 80% 40%", // Emerald-600 - Xanh lá ngọc, dễ nhìn
+      primary: "173 56% 42%", // Primary nhẹ, giảm bão hòa để bớt gắt
       primaryForeground: "0 0% 100%",
       
-      secondary: "210 40% 96.1%", // Xám nhạt
+      secondary: "210 40% 95.5%", // Xám nhạt, mềm hơn một chút
       secondaryForeground: "222.2 47.4% 11.2%",
       
-      muted: "210 40% 96.1%",
+      muted: "210 35% 96.5%",
       mutedForeground: "215.4 16.3% 46.9%",
       
-      accent: "173 80% 40%", // Emerald accent
+      accent: "173 68% 43%", // Accent tươi vừa đủ, không chói
       accentForeground: "0 0% 100%",
       
       destructive: "0 84.2% 60.2%",
       destructiveForeground: "0 0% 100%",
       
-      border: "214.3 31.8% 91.4%",
-      input: "214.3 31.8% 91.4%",
-      ring: "173 80% 40%",
+      border: "214.3 28% 90.5%",
+      input: "214.3 28% 90.5%",
+      ring: "173 72% 34%",
     },
     dark: {
-      background: "222.2 84% 4.9%", // Nền tối
+      background: "222.2 47.4% 5.8%", // Nền tối dịu hơn, không quá đen
       foreground: "210 40% 98%",
       
-      card: "222.2 84% 4.9%",
+      card: "222.2 47.4% 7.5%",
       cardForeground: "210 40% 98%",
       
-      popover: "222.2 84% 4.9%",
+      popover: "222.2 47.4% 7.5%",
       popoverForeground: "210 40% 98%",
       
-      primary: "173 80% 50%", // Emerald-500 - Sáng hơn cho dark mode
+      primary: "173 68% 52%", // Dark primary: giảm bão hòa, giữ sáng vừa đủ
       primaryForeground: "222.2 47.4% 11.2%",
       
-      secondary: "217.2 32.6% 17.5%",
+      secondary: "217.2 24% 15%",
       secondaryForeground: "210 40% 98%",
       
-      muted: "217.2 32.6% 17.5%",
+      muted: "217.2 24% 15%",
       mutedForeground: "215 20.2% 65.1%",
       
-      accent: "173 80% 50%",
+      accent: "173 80% 54%",
       accentForeground: "222.2 47.4% 11.2%",
       
       destructive: "0 62.8% 30.6%",
       destructiveForeground: "210 40% 98%",
       
-      border: "217.2 32.6% 17.5%",
-      input: "217.2 32.6% 17.5%",
-      ring: "173 80% 50%",
+      border: "217.2 24% 18%",
+      input: "217.2 24% 18%",
+      ring: "173 80% 54%",
     },
   },
 

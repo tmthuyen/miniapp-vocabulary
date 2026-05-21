@@ -363,7 +363,7 @@ export function AddVocabularyDialog({
           <div className="flex justify-end gap-2 pt-4">
             <Button
               type="button"
-              variant="outline"
+              variant="destructive"
               onClick={() => onOpenChange(false)}
               disabled={loading}
             >

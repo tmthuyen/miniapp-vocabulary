@@ -43,7 +43,7 @@
   /* --- LIGHT MODE: Emerald/Teal Theme - Dễ nhìn, Professional --- */
   --radius: 0.75rem; /* Bo góc 12px (Modern rounded) */
   
-  --background: 0 0% 100%;       /* Trắng tinh khiết */
+  --background: 0 0% 99%;       /* Trắng dịu, giảm độ gắt */
   --foreground: 222.2 47.4% 11.2%;  /* Chữ đậm nhưng không quá đen - dễ đọc */
 
   /* Card (Thẻ từ vựng) - Nổi bật nhẹ trên nền */
@@ -55,19 +55,19 @@
   --popover-foreground: 222.2 47.4% 11.2%;
 
   /* Primary (Màu chủ đạo): Emerald/Teal - Xanh lá ngọc, dễ nhìn */
-  --primary: 173 80% 40%;  /* Emerald-600 */
+  --primary: 173 56% 42%;  /* Primary nhẹ, giảm bão hòa để bớt gắt */
   --primary-foreground: 0 0% 100%;
 
   /* Secondary: Màu phụ trợ (Xám nhạt) */
-  --secondary: 210 40% 96.1%;
+  --secondary: 210 40% 95.5%;
   --secondary-foreground: 222.2 47.4% 11.2%;
 
   /* Muted: Dành cho text phụ (Ví dụ: phiên âm IPA) */
-  --muted: 210 40% 96.1%;
+  --muted: 210 35% 96.5%;
   --muted-foreground: 215.4 16.3% 46.9%;
 
   /* Accent: Emerald accent */
-  --accent: 173 80% 40%;
+  --accent: 173 68% 43%;
   --accent-foreground: 0 0% 100%;
 
   /* Destructive: Màu đỏ cảnh báo (Nút xóa) */
@@ -75,41 +75,41 @@
   --destructive-foreground: 0 0% 100%;
 
   /* Border & Input lines */
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 173 80% 40%;
+  --border: 214.3 28% 90.5%;
+  --input: 214.3 28% 90.5%;
+  --ring: 173 72% 34%;
 }
 
 .dark {
   /* --- DARK MODE: Sâu thẳm, dịu mắt, "Cyberpunk" nhẹ --- */
-  --background: 222.2 84% 4.9%;  /* Xám xanh rất đậm (Slate-950) - Sang hơn màu đen */
+  --background: 222.2 47.4% 5.8%;  /* Nền tối dịu hơn, không quá đen */
   --foreground: 210 40% 98%;     /* Chữ trắng đục dịu mắt */
 
-  --card: 222.2 84% 4.9%;        /* Nền thẻ trùng nền web để tạo cảm giác phẳng (hoặc chỉnh sáng hơn xíu) */
+  --card: 222.2 47.4% 7.5%;        /* Card nổi nhẹ hơn nền */
   --card-foreground: 210 40% 98%;
 
-  --popover: 222.2 84% 4.9%;
+  --popover: 222.2 47.4% 7.5%;
   --popover-foreground: 210 40% 98%;
 
-  /* Primary Dark: Emerald sáng hơn cho dark mode - Dễ nhìn */
-  --primary: 173 80% 50%; /* Emerald-500 */
+  /* Primary Dark: Emerald sáng hơn nhưng không chói */
+  --primary: 173 68% 52%; /* Dark primary: giảm bão hòa, giữ sáng vừa đủ */
   --primary-foreground: 222.2 47.4% 11.2%;
 
-  --secondary: 217.2 32.6% 17.5%; /* Xám tối cho các nút phụ */
+  --secondary: 217.2 24% 15%; /* Xám tối dịu cho các nút phụ */
   --secondary-foreground: 210 40% 98%;
 
-  --muted: 217.2 32.6% 17.5%;
+  --muted: 217.2 24% 15%;
   --muted-foreground: 215 20.2% 65.1%; /* Màu xám lông chuột cho text phụ */
 
-  --accent: 173 80% 50%;
+  --accent: 173 80% 54%;
   --accent-foreground: 222.2 47.4% 11.2%;
 
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 210 40% 98%;
 
-  --border: 217.2 32.6% 17.5%; /* Đường viền tối, tinh tế */
-  --input: 217.2 32.6% 17.5%;
-  --ring: 173 80% 50%;
+  --border: 217.2 24% 18%; /* Đường viền tối, tinh tế */
+  --input: 217.2 24% 18%;
+  --ring: 173 80% 54%;
 }
 
 @layer base {

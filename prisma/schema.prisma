@@ -63,13 +63,32 @@ model UserProfile {
 
   user           User     @relation(fields: [id], references: [id], onDelete: Cascade)
   vocabularies   Vocabulary[]
+  vocabulary_sets VocabularySet[]
 
   @@map("profiles")
+}
+
+model VocabularySet {
+  id          String    @id @default(uuid()) @db.Uuid
+  user_id     String    @db.Uuid
+  name        String
+  description String?
+  is_published Boolean  @default(false)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  user        UserProfile @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  vocabularies Vocabulary[]
+
+  @@index([user_id])
+  @@index([is_published])
+  @@map("vocabulary_sets")
 }
 
 model Vocabulary {
   id          String               @id @default(uuid()) @db.Uuid
   user_id     String               @db.Uuid
+  set_id      String?              @db.Uuid
   word        String
   ipa         String?
   definition  String?
@@ -79,8 +98,50 @@ model Vocabulary {
   created_at  DateTime             @default(now())
 
   user        UserProfile @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  set         VocabularySet? @relation(fields: [set_id], references: [id], onDelete: SetNull)
 
   @@index([user_id])
   @@index([category])
+  @@index([set_id])
   @@map("vocabularies")
+}
+
+enum GameMode {
+  matching
+  flashcard
+  quiz
+  fill
+}
+
+model GameSession {
+  id            String    @id @default(uuid()) @db.Uuid
+  user_id       String    @db.Uuid
+  mode          GameMode
+  status        String    @default("active")
+  started_at    DateTime  @default(now())
+  finished_at   DateTime?
+  total_questions Int     @default(0)
+  correct_answers Int     @default(0)
+  score         Int       @default(0)
+
+  user          User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  answers       GameAnswer[]
+
+  @@index([user_id, mode])
+  @@map("game_sessions")
+}
+
+model GameAnswer {
+  id            String    @id @default(uuid()) @db.Uuid
+  session_id    String    @db.Uuid
+  prompt        String
+  expected      String
+  submitted     String
+  is_correct    Boolean
+  created_at    DateTime  @default(now())
+
+  session       GameSession @relation(fields: [session_id], references: [id], onDelete: Cascade)
+
+  @@index([session_id])
+  @@map("game_answers")
 }

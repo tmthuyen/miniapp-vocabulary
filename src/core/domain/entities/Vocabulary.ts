@@ -3,6 +3,7 @@ export type VocabularyDifficulty = "Easy" | "Medium" | "Hard"
 export interface VocabularyProps {
   id: string
   userId: string
+  setId?: string | null
   word: string
   ipa?: string | null
   definition?: string | null
@@ -14,6 +15,7 @@ export interface VocabularyProps {
 
 export interface VocabularyDTO {
   id: string
+  set_id?: string | null
   word: string
   ipa?: string | null
   definition?: string | null
@@ -37,6 +39,7 @@ export class Vocabulary {
   toDTO(): VocabularyDTO {
     return {
       id: this.props.id,
+      set_id: this.props.setId ?? null,
       word: this.props.word,
       ipa: this.props.ipa ?? null,
       definition: this.props.definition ?? null,
@@ -47,5 +50,3 @@ export class Vocabulary {
     }
   }
 }
-
-

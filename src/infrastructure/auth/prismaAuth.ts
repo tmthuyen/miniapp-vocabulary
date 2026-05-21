@@ -1,4 +1,4 @@
-﻿import { prisma } from "@/infrastructure/database/prisma/client"
+import { prisma } from "@/infrastructure/database/prisma/client"
 import bcrypt from "bcryptjs"
 import { randomBytes } from "crypto"
 import { cookies } from "next/headers"
@@ -15,6 +15,47 @@ export async function createUser(email: string, password: string) {
     },
   })
   return user
+}
+
+export async function createUserByAdmin(input: { email: string; password: string; full_name?: string | null; role?: "admin" | "user"; vip_plan?: "free" | "vip_basic" | "vip_pro"; vip_expired_at?: string | null }) {
+  const passwordHash = await bcrypt.hash(input.password, 10)
+  const user = await prisma.user.create({
+    data: {
+      email: input.email,
+      password_hash: passwordHash,
+      profile: {
+        create: {
+          full_name: input.full_name ?? null,
+          role: input.role ?? "user",
+          vip_plan: input.vip_plan ?? "free",
+          vip_expired_at: input.vip_expired_at ? new Date(input.vip_expired_at) : null,
+        },
+      },
+    },
+    include: { profile: true },
+  })
+
+  return {
+    id: user.id,
+    email: user.email,
+    full_name: user.profile?.full_name ?? null,
+    role: user.profile?.role ?? "user",
+    vip_plan: user.profile?.vip_plan ?? "free",
+    vip_expired_at: user.profile?.vip_expired_at ? user.profile.vip_expired_at.toISOString() : null,
+    created_at: user.created_at.toISOString(),
+  }
+}
+
+export async function banUserByAdmin(userId: string) {
+  const lockedPasswordHash = await bcrypt.hash(randomBytes(32).toString("hex"), 10)
+  await prisma.$transaction([
+    prisma.user.update({ where: { id: userId }, data: { password_hash: lockedPasswordHash } }),
+    prisma.session.deleteMany({ where: { user_id: userId } }),
+  ])
+}
+
+export async function deleteUserByAdmin(userId: string) {
+  await prisma.user.delete({ where: { id: userId } })
 }
 
 export async function signIn(email: string, password: string) {
