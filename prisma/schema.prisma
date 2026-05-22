@@ -33,6 +33,7 @@ model User {
 
   profile       UserProfile?
   sessions      Session[]
+  gameSessions  GameSession[]
 
   @@map("users")
 }

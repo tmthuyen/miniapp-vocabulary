@@ -1,5 +1,5 @@
 import { requireAdmin } from "@/infrastructure/api/next/requireUser"
-import type { UpdateVocabularyInput } from "@/core/interfaces/repositories/IVocabularyRepository"
+import type { UpdateVocabularyInput } from "@/domain/repositories/IVocabularyRepository"
 
 export async function PATCH(req: Request) {
   const auth = await requireAdmin()

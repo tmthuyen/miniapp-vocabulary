@@ -1,6 +1,6 @@
 import { parse } from "csv-parse/sync"
 import { requireAdmin } from "@/infrastructure/api/next/requireUser"
-import type { CreateVocabularyInput } from "@/core/interfaces/repositories/IVocabularyRepository"
+import type { CreateVocabularyInput } from "@/domain/repositories/IVocabularyRepository"
 
 function normalizeRecord(record: any): CreateVocabularyInput {
   return {

@@ -1,5 +1,5 @@
 ﻿import { requireAdmin, requireUser } from "@/infrastructure/api/next/requireUser"
-import type { CreateVocabularyInput } from "@/core/interfaces/repositories/IVocabularyRepository"
+import type { CreateVocabularyInput } from "@/domain/repositories/IVocabularyRepository"
 
 export async function GET() {
   const auth = await requireUser()

@@ -1,10 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
-import { Vocabulary } from "@/core/domain/entities/Vocabulary"
+import { Vocabulary } from "@/domain/entities/Vocabulary"
 import type {
   CreateVocabularyInput,
   IVocabularyRepository,
   UpdateVocabularyInput,
-} from "@/core/interfaces/repositories/IVocabularyRepository"
+} from "@/domain/repositories/IVocabularyRepository"
 
 type VocabularyRow = {
   id: string
@@ -30,6 +30,27 @@ function rowToEntity(row: VocabularyRow) {
     difficulty: row.difficulty,
     createdAt: row.created_at,
   })
+}
+
+type VocabularySetRow = {
+  id: string
+  user_id: string
+  name: string
+  description: string | null
+  is_published: boolean
+  created_at: string
+  updated_at: string
+}
+
+function setRowToDTO(row: VocabularySetRow) {
+  return {
+    id: row.id,
+    name: row.name,
+    description: row.description,
+    is_published: row.is_published,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+  }
 }
 
 export class SupabaseVocabularyRepository implements IVocabularyRepository {
@@ -106,6 +127,17 @@ export class SupabaseVocabularyRepository implements IVocabularyRepository {
       .eq("user_id", userId)
 
     if (error) throw error
+  }
+
+  async listPublishedSets() {
+    const { data, error } = await this.supabase
+      .from("vocabulary_sets")
+      .select("*")
+      .eq("is_published", true)
+      .order("updated_at", { ascending: false })
+
+    if (error) throw error
+    return (data as VocabularySetRow[] | null)?.map(setRowToDTO) ?? []
   }
 }
 

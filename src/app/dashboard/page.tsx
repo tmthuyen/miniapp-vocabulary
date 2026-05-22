@@ -1,6 +1,6 @@
 ﻿"use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
@@ -15,9 +15,7 @@ export default function DashboardPage() {
   const [addDialogOpen, setAddDialogOpen] = useState(false)
   const router = useRouter()
 
-  useEffect(() => { loadStats() }, [])
-
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     try {
       const meRes = await fetch("/api/auth/me")
       const me = await meRes.json()
@@ -32,7 +30,11 @@ export default function DashboardPage() {
       const today = new Date(); today.setHours(0,0,0,0)
       setStats({ totalAllTime: list.length, totalToday: list.filter((v) => new Date(v.created_at) >= today).length })
     } finally { setLoading(false) }
-  }
+  }, [router])
+
+  useEffect(() => { 
+    loadStats() 
+  }, [loadStats])
 
   return <div className="space-y-8">{/* unchanged layout */}
     <div className="flex items-center justify-between"><div><h1 className="text-3xl font-bold">Dashboard</h1><p className="text-muted-foreground mt-1">Track your vocabulary learning progress</p></div><Button onClick={() => setAddDialogOpen(true)} className="gap-2" size="lg"><Plus className="h-5 w-5" />Quick Add</Button></div>

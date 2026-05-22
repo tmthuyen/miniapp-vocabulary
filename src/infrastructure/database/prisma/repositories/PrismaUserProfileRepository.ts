@@ -1,5 +1,5 @@
-﻿import { UserProfile } from "@/core/domain/entities/UserProfile"
-import type { IUserProfileRepository, UpdateUserProfileInput } from "@/core/interfaces/repositories/IUserProfileRepository"
+﻿import { UserProfile } from "@/domain/entities/UserProfile"
+import type { IUserProfileRepository, UpdateUserProfileInput } from "@/domain/repositories/IUserProfileRepository"
 import { prisma } from "@/infrastructure/database/prisma/client"
 
 function toEntity(row: { id: string; full_name: string | null; avatar_url: string | null; target_band: number | null; role: "admin" | "user"; vip_plan: "free" | "vip_basic" | "vip_pro"; vip_expired_at: Date | null; created_at: Date; updated_at: Date }) {

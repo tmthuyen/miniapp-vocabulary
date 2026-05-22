@@ -1,5 +1,5 @@
 import { requireUser } from "@/infrastructure/api/next/requireUser"
-import type { UpdateUserProfileInput } from "@/core/interfaces/repositories/IUserProfileRepository"
+import type { UpdateUserProfileInput } from "@/domain/repositories/IUserProfileRepository"
 
 export async function GET() {
   const auth = await requireUser()

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { CreateVocabulary } from "@/core/use-cases/vocabulary/CreateVocabulary"
-import type { IVocabularyRepository } from "@/core/interfaces/repositories/IVocabularyRepository"
-import { Vocabulary } from "@/core/domain/entities/Vocabulary"
+import { CreateVocabulary } from "@/use-cases/vocabulary/CreateVocabulary"
+import type { IVocabularyRepository } from "@/domain/repositories/IVocabularyRepository"
+import { Vocabulary } from "@/domain/entities/Vocabulary"
 
 const makeRepo = (): IVocabularyRepository => ({
   listByUserId: async () => [],

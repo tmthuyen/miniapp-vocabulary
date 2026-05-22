@@ -1,6 +1,6 @@
 ﻿import { GameSession } from "@/core/domain/entities/GameSession"
 import type { GameMode } from "@/core/domain/entities/GameSession"
-import type { IGameRepository, StartGameInput, SubmitGameAnswerInput } from "@/core/interfaces/repositories/IGameRepository"
+import type { IGameRepository, StartGameInput, SubmitGameAnswerInput } from "@/domain/repositories/IGameRepository"
 import { prisma } from "@/infrastructure/database/prisma/client"
 
 function toEntity(row: any) {

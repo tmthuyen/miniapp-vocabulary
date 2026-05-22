@@ -1,6 +1,6 @@
 ﻿import type { SupabaseClient } from "@supabase/supabase-js"
-import { UserProfile } from "@/core/domain/entities/UserProfile"
-import type { IUserProfileRepository, UpdateUserProfileInput } from "@/core/interfaces/repositories/IUserProfileRepository"
+import { UserProfile } from "@/domain/entities/UserProfile"
+import type { IUserProfileRepository, UpdateUserProfileInput } from "@/domain/repositories/IUserProfileRepository"
 
 type ProfileRow = {
   id: string

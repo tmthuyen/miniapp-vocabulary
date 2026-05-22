@@ -1,13 +1,13 @@
-import { Vocabulary } from "@/core/domain/entities/Vocabulary"
+import { Vocabulary } from "@/domain/entities/Vocabulary"
 import type {
   CreateVocabularyInput,
   CreateVocabularySetInput,
   IVocabularyRepository,
   UpdateVocabularyInput,
-} from "@/core/interfaces/repositories/IVocabularyRepository"
-import { prisma } from "@/infrastructure/database/prisma/client"
+} from "@/domain/repositories/IVocabularyRepository"
+import { prisma } from "@/infrastructure/database/prisma/client" 
 
-function toEntity(row: any) {
+function toEntity(row: any): Vocabulary {
   return new Vocabulary({
     id: row.id,
     userId: row.user_id,
@@ -36,7 +36,7 @@ function toSetDTO(row: any) {
 export class PrismaVocabularyRepository implements IVocabularyRepository {
   async listByUserId(userId: string) {
     const rows = await prisma.vocabulary.findMany({ where: { user_id: userId }, orderBy: { created_at: "desc" } })
-    return rows.map(toEntity)
+    return rows.map((user) => toEntity(user))
   }
 
   async listCategoriesByUserId(userId: string) {
@@ -67,6 +67,11 @@ export class PrismaVocabularyRepository implements IVocabularyRepository {
 
   async listSetsByUserId(userId: string) {
     const rows = await prisma.vocabularySet.findMany({ where: { user_id: userId }, orderBy: { updated_at: "desc" } })
+    return rows.map(toSetDTO)
+  }
+
+  async listPublishedSets() {
+    const rows = await prisma.vocabularySet.findMany({ where: { is_published: true }, orderBy: { updated_at: "desc" } })
     return rows.map(toSetDTO)
   }
 
