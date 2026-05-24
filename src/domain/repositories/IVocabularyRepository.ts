@@ -46,4 +46,3 @@ export interface IVocabularyRepository {
   publishSetForUser(userId: string, setId: string, isPublished: boolean): Promise<VocabularySetDTO>
 }
 
-  listPublishedSets(): Promise<VocabularySetDTO[]>

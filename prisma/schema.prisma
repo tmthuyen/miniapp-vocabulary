@@ -7,11 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-  admin
-  user
-}
-
 enum VipPlan {
   free
   vip_basic
@@ -24,54 +19,117 @@ enum VocabularyDifficulty {
   Hard
 }
 
-model User {
-  id            String   @id @default(uuid()) @db.Uuid
-  email         String   @unique
-  password_hash String
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
+enum UserProfileStatus {
+  active
+  pending
+  inactive
+  deleted
+  banned
+  restricted
+}
 
-  profile       UserProfile?
-  sessions      Session[]
-  gameSessions  GameSession[]
 
-  @@map("users")
+
+model Role {
+  id   String @id 
+  code String @unique
+  name String @unique
+
+  created_at DateTime @default(now())
+  created_by String?  
+  updated_at DateTime @updatedAt
+  updated_by String?  
+
+	user_roles UserRole[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  id      String @id 
+  user_id String 
+  role_id String 
+
+  user_profile    UserProfile @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  role    Role        @relation(fields: [role_id], references: [id], onDelete: Cascade)
+
+  created_at DateTime @default(now())
+  created_by String?  
+  updated_at DateTime @updatedAt
+  updated_by String?  
+  
+  @@index([user_id])
+  @@index([role_id])
+  @@map("user_roles")
+}
+
+model UserProfile {
+  id            String   @id  
+  full_name     String?
+  avatar_url    String?
+  target_band   Float?
+  vip_plan      VipPlan  @default(free)
+  vip_expired_at     DateTime?
+  status        UserProfileStatus @default(active)
+
+  created_at DateTime @default(now())
+  created_by String?  
+  updated_at DateTime @updatedAt
+  updated_by String?  
+
+	sessions          Session[]
+	auth_providers    UserAuthProvider[]
+	user_roles        UserRole[]
+	vocabularies        Vocabulary[]
+	vocabulary_sets      VocabularySet[]
+
+  @@map("user_profiles")
 }
 
 model Session {
-  id            String   @id @default(uuid()) @db.Uuid
-  user_id       String   @db.Uuid
+  id            String   @id 
+  user_id       String   
   session_token String   @unique
+  issued_at   DateTime
   expires_at    DateTime
-  created_at    DateTime @default(now())
+  revoked_at	 DateTime?
+	
+  created_at DateTime @default(now())
+  created_by String?  
+  updated_at DateTime @updatedAt
+  updated_by String?  
 
-  user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_profile          UserProfile     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([user_id])
   @@map("sessions")
 }
 
-model UserProfile {
-  id             String   @id @db.Uuid
-  full_name      String?
-  avatar_url     String?
-  target_band    Float?
-  role           UserRole @default(user)
-  vip_plan       VipPlan  @default(free)
-  vip_expired_at DateTime?
-  created_at     DateTime @default(now())
-  updated_at     DateTime @updatedAt
 
-  user           User     @relation(fields: [id], references: [id], onDelete: Cascade)
-  vocabularies   Vocabulary[]
-  vocabulary_sets VocabularySet[]
+model UserAuthProvider {
+	id             String   @id 
+	user_id        String   
+	provider_type        String @default("local") // e.g., "local", "google", "facebook"
+	provider_user_id String? // e.g., the user ID from the provider (for "local", this can be null)
+	email 				 String? @unique
+	password_hash String?
+    is_verified Boolean @default(false)
 
-  @@map("profiles")
+	created_at DateTime @default(now())
+	created_by String?  
+	updated_at DateTime @updatedAt
+	updated_by String?  
+
+	user_profile          UserProfile     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+	@@unique([provider_type, provider_user_id])
+	@@index([user_id])
+	@@map("user_auth_providers")
 }
 
 model VocabularySet {
-  id          String    @id @default(uuid()) @db.Uuid
-  user_id     String    @db.Uuid
+  id          String    @id 
+  user_id     String    
   name        String
   description String?
   is_published Boolean  @default(false)
@@ -87,9 +145,9 @@ model VocabularySet {
 }
 
 model Vocabulary {
-  id          String               @id @default(uuid()) @db.Uuid
-  user_id     String               @db.Uuid
-  set_id      String?              @db.Uuid
+  id          String               @id 
+  user_id     String               
+  set_id      String?              
   word        String
   ipa         String?
   definition  String?
@@ -105,44 +163,4 @@ model Vocabulary {
   @@index([category])
   @@index([set_id])
   @@map("vocabularies")
-}
-
-enum GameMode {
-  matching
-  flashcard
-  quiz
-  fill
-}
-
-model GameSession {
-  id            String    @id @default(uuid()) @db.Uuid
-  user_id       String    @db.Uuid
-  mode          GameMode
-  status        String    @default("active")
-  started_at    DateTime  @default(now())
-  finished_at   DateTime?
-  total_questions Int     @default(0)
-  correct_answers Int     @default(0)
-  score         Int       @default(0)
-
-  user          User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  answers       GameAnswer[]
-
-  @@index([user_id, mode])
-  @@map("game_sessions")
-}
-
-model GameAnswer {
-  id            String    @id @default(uuid()) @db.Uuid
-  session_id    String    @db.Uuid
-  prompt        String
-  expected      String
-  submitted     String
-  is_correct    Boolean
-  created_at    DateTime  @default(now())
-
-  session       GameSession @relation(fields: [session_id], references: [id], onDelete: Cascade)
-
-  @@index([session_id])
-  @@map("game_answers")
 }

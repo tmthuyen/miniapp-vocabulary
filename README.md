@@ -1,172 +1,115 @@
 # IELTS 8.0 Master
 
-Ứng dụng web học từ vựng IELTS theo hướng clean architecture. Dự án hiện tập trung vào 4 phần chính: đăng nhập/đăng ký, quản lý từ vựng, hồ sơ người dùng và các game luyện tập.
+## Introduction
+IELTS 8.0 Master is a vocabulary-focused learning web app for IELTS learners, built with Next.js App Router and organized with clean architecture principles.  
+The project currently focuses on authentication, profile management, vocabulary management, and admin operations.
 
-## Dự án này làm gì?
+## Code Architecture
+The codebase is split into clear layers:
 
-- Đăng ký, đăng nhập, đăng xuất bằng email/password.
-- Phân quyền `user` và `admin`.
-- Quản lý từ vựng: xem, thêm, sửa, xóa, import CSV.
-- Quản lý hồ sơ cá nhân: tên, avatar, band mục tiêu, VIP plan.
-- Chơi game học từ vựng: flashcard, quiz, fill, matching.
-- Theo dõi lịch sử game và trạng thái VIP.
+- `src/domain`: Entities, domain rules, repository contracts.
+- `src/application`: Use-cases and application-level interfaces.
+- `src/infrastructure`: Database adapters (Prisma/Supabase), auth, DI containers, API helpers.
+- `src/app`: Next.js App Router pages and API route handlers.
+- `src/components`: Shared UI and feature-level UI components.
+- `src/shared`: Constants, configs, utility helpers, shared types, error mapping.
 
-## Kiến trúc ngắn gọn
+Main flow:
+`UI/API Route -> Auth Guard -> Use Case -> Repository Adapter -> Database`
 
-Dự án được tách theo các lớp rõ ràng:
+## Features
+- Email/password sign up, login, logout.
+- Cookie-based server-side session authentication.
+- Role-based authorization (`user`, `admin`).
+- Profile management (name, VIP plan fields).
+- Vocabulary management: list, categories, create, update, delete, import.
+- Vocabulary set management.
+- Admin panel APIs for user and vocabulary administration.
 
-- `src/app`: giao diện và API routes của Next.js.
-- `src/presentation`: component theo feature, dùng cho UI.
-- `src/core`: domain, interface repository, use-case.
-- `src/infrastructure`: Prisma, auth, DI container, guard request.
-- `src/shared`: route constants, theme config, utils, types.
-- `prisma`: schema và seed dữ liệu.
-- `docs`: tài liệu kiến trúc, API, setup, theme.
-
-Luồng chung là: UI hoặc API route -> auth guard -> use-case -> repository -> database.
-
-## Công nghệ chính
-
-- Next.js 16 với App Router.
-- React 19 và TypeScript.
-- Tailwind CSS 4.
-- Prisma + PostgreSQL.
-- Custom session auth bằng cookie.
-- Radix UI, Lucide React, next-themes.
-
-Xem thêm: [TECH_STACK.md](./docs/TECH_STACK.md)
-
-## Cấu trúc thư mục chính
-
-```text
-src/
-├── app/                  # Pages và API routes
-│   ├── auth/             # Login, signup
-│   ├── dashboard/        # Dashboard, games, profile, admin pages
-│   └── api/              # API handlers
-├── components/           # UI dùng chung
-├── core/                 # Domain + use-case + repository interfaces
-├── infrastructure/       # Prisma, auth, DI, API helpers
-├── presentation/         # Component theo feature
-└── shared/               # Config, routes, utils, types
-
-prisma/
-├── schema.prisma         # Data model
-└── seed.ts               # Seed data
-
-docs/                     # Tài liệu dự án
-```
-
-## Các luồng hoạt động chính
-
-### 1. Vào ứng dụng
-
-- Trang gốc kiểm tra user hiện tại.
-- Nếu đã đăng nhập, chuyển sang `/dashboard`.
-- Nếu chưa đăng nhập, chuyển sang `/auth/login`.
-
-### 2. Đăng nhập
-
-- Form login gọi `POST /api/auth/login`.
-- API kiểm tra email/password.
-- Nếu đúng, hệ thống tạo session token và lưu vào cookie.
-- Sau đó app tải lại để middleware nhận session mới.
-
-### 3. Xem dashboard
-
-- Dashboard gọi `GET /api/auth/me` để lấy user hiện tại.
-- Sau đó gọi `GET /api/vocabulary` để lấy danh sách từ vựng.
-- UI hiển thị thống kê và danh sách từ vựng.
-
-### 4. Quản lý từ vựng
-
-- User thường chỉ được xem dữ liệu của chính mình.
-- Admin mới được tạo/sửa/xóa/import từ vựng.
-- Logic nghiệp vụ nằm trong `core/use-cases`, không nằm trực tiếp trong route.
-
-### 5. Chơi game
-
-- Game page lấy danh sách từ vựng trước.
-- Khi bắt đầu game, API tạo `GameSession`.
-- Mỗi câu trả lời được lưu thành `GameAnswer`.
-- Khi kết thúc, session được đánh dấu hoàn tất và cập nhật điểm.
-
-## Nguyên tắc thiết kế
-
-- Business logic nằm trong `src/core`.
-- API route chỉ làm nhiệm vụ nhận request và trả response.
-- Repository chịu trách nhiệm đọc/ghi database.
-- Guard như `requireUser`, `requireAdmin`, `requireVip` kiểm tra quyền trước khi đi vào use-case.
-- Entity có kiểm tra dữ liệu đầu vào để tránh trạng thái sai.
-- Theme được quản lý tập trung, không hardcode màu rải rác trong component.
-
-## Theme và màu sắc
-
-Theme hiện được quản lý tập trung ở:
-
-- [src/shared/config/theme-config.ts](./src/shared/config/theme-config.ts)
-- [src/app/globals.css](./src/app/globals.css)
-
-Nếu muốn đổi màu, hãy sửa theme config trước rồi đồng bộ sang `globals.css`.
-
-## Cài đặt và chạy dự án
-
-### 1. Cài dependency
-
+## Set up or Start Guidline
+1. Install dependencies:
 ```bash
 npm install
 ```
 
-### 2. Tạo file môi trường
+2. Create environment file:
+- Copy `.env.example` to `.env.local`.
+- Fill required values (for example `DATABASE_URL`).
 
-Tạo `.env.local` ở thư mục gốc, tối thiểu cần:
+3. Prepare database:
+- Run your Prisma migration/sync flow.
+- Optional: seed data from `prisma/seed.ts`.
 
-```bash
-DATABASE_URL="postgresql://postgres:123456@localhost:5432/ielts_master?schema=public"
-```
-
-Nếu bạn dùng các module Supabase có sẵn trong project, thêm:
-
-```bash
-NEXT_PUBLIC_SUPABASE_URL=""
-NEXT_PUBLIC_SUPABASE_ANON_KEY=""
-```
-
-Mẫu đầy đủ có thể xem trong [.env.example](./.env.example).
-
-### 3. Chuẩn bị database
-
-- Tạo database PostgreSQL phù hợp với `DATABASE_URL`.
-- Chạy Prisma migration hoặc sync schema theo quy trình của bạn.
-- Nếu cần dữ liệu mẫu, dùng `prisma/seed.ts`.
-
-### 4. Chạy app
-
+4. Start development server:
 ```bash
 npm run dev
 ```
 
-Mở `http://localhost:3000`.
+Default local URL: `http://localhost:3000`
 
-## Scripts hữu ích
+## API
+Base path: `/api`
 
+### Auth
+- `POST /api/auth/signup`
+- `POST /api/auth/login`
+- `POST /api/auth/logout`
+- `GET /api/auth/me`
+
+### Profile
+- `GET /api/profile`
+- `PATCH /api/profile`
+
+### Vocabulary
+- `GET /api/vocabulary`
+- `POST /api/vocabulary` (admin)
+- `GET /api/vocabulary/:id`
+- `PATCH /api/vocabulary/:id` (admin)
+- `DELETE /api/vocabulary/:id` (admin)
+- `GET /api/vocabulary/categories`
+- `GET /api/vocabulary/sets`
+- `POST /api/vocabulary/import` (admin)
+
+### Admin
+- `GET /api/admin/users`
+- `POST /api/admin/users`
+- `PATCH /api/admin/users/update`
+- `PATCH /api/admin/users/:id`
+- `DELETE /api/admin/users/:id`
+- `POST /api/admin/users/:id` (action endpoint, supports `ban`)
+- `GET /api/admin/vocabulary`
+- `POST /api/admin/vocabulary`
+- `PATCH /api/admin/vocabulary`
+- `PATCH /api/admin/vocabulary/item`
+- `DELETE /api/admin/vocabulary/item`
+- `GET /api/admin/vocabulary/sets`
+- `POST /api/admin/vocabulary/sets`
+- `POST /api/admin/vocabulary/import`
+
+For details and payload notes, see `docs/API_SPEC.md`.
+
+## Docs
+- `docs/CLEAN_ARCHITECTURE.md`
+- `docs/API_SPEC.md`
+- `docs/TECH_STACK.md`
+- `docs/SETUP.md`
+- `docs/PRODUCT_OVERVIEW.md`
+- `docs/THEME_GUIDE.md`
+
+## Tech Stack
+- Next.js 16
+- React 19
+- TypeScript 5
+- Tailwind CSS 4
+- Prisma + PostgreSQL
+- Vitest
+
+## Useful Scripts
 ```bash
 npm run dev
 npm run build
 npm run start
 npm run lint
 npm run test
+npm run test:watch
 ```
-
-## Tài liệu liên quan
-
-- [PRODUCT_OVERVIEW.md](./docs/PRODUCT_OVERVIEW.md)
-- [CLEAN_ARCHITECTURE.md](./docs/CLEAN_ARCHITECTURE.md)
-- [API_SPEC.md](./docs/API_SPEC.md)
-- [SETUP.md](./docs/SETUP.md)
-- [THEME_GUIDE.md](./docs/THEME_GUIDE.md)
-
-## Ghi chú
-
-- Đây là project riêng tư.
-- Một số file Supabase vẫn còn trong source để hỗ trợ các module liên quan, nhưng luồng auth chính hiện dùng Prisma + cookie session.

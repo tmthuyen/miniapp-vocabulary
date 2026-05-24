@@ -6,15 +6,14 @@ export async function requireUser() {
   if (!user) return { ok: false as const, status: 401, message: "Unauthorized" }
 
   const di = createRequestContainer()
-  const profile = await di.profile.getMyProfile.execute(user.id)
+  const profile = await di.profile.getMyProfileUC.execute(user.id)
   return { ok: true as const, userId: user.id, user, profile, di }
 }
 
 export async function requireAdmin() {
   const auth = await requireUser()
   if (!auth.ok) return auth
-  if (!auth.profile.isAdmin()) return { ok: false as const, status: 403, message: "Admin only" }
-  return auth
+  return true
 }
 
 export async function requireVip(plan: "vip_basic" | "vip_pro") {

@@ -1,0 +1,166 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Core User entity
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String   // bcrypt hashed
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations - Chỉ lưu IDs trong domain entity
+  roles         Role[]       @relation("UserRoles")
+  addresses     Address[]    @relation("UserAddresses")
+  sessions      Session[]    @relation("UserSessions")
+
+  // For querying relationships
+  roleIds       String[]     @default([])
+  addressIds    String[]     @default([])
+
+  @@index([email])
+  @@index([createdAt])
+}
+
+// Role entity - cho quyền quản lý
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+
+  // Relations
+  users       User[]        @relation("UserRoles")
+  permissions Permission[]  @relation("RolePermissions")
+  permissionIds String[]    @default([])
+
+  @@index([name])
+}
+
+// Permission - chi tiết quyền hạn
+model Permission {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  resource  String   // e.g. "users", "posts", "admin"
+  action    String   // e.g. "create", "read", "update", "delete"
+  createdAt DateTime @default(now())
+
+  // Relations
+  roles     Role[]   @relation("RolePermissions")
+
+  @@unique([resource, action])
+  @@index([resource])
+  @@index([action])
+}
+
+// Address - địa chỉ người dùng
+model Address {
+  id        String   @id @default(cuid())
+  userId    String
+  street    String
+  city      String
+  country   String
+  postalCode String
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relation
+  user      User     @relation("UserAddresses", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isPrimary])
+}
+
+// Session - phiên đăng nhập
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  // Relation
+  user      User     @relation("UserSessions", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+}
+
+// ============== JOIN TABLE - Explicit many-to-many ============
+
+// Nếu cần thêm metadata vào relationship (e.g., assigned_by, assigned_at)
+model UserRole {
+  id        String   @id @default(cuid())
+  userId    String
+  roleId    String
+  assignedAt DateTime @default(now())
+  assignedBy String?
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@index([userId])
+  @@index([roleId])
+}
+
+// Nếu cần tracked changes
+model RolePermission {
+  id         String   @id @default(cuid())
+  roleId     String
+  permissionId String
+  grantedAt  DateTime @default(now())
+  grantedBy  String?
+
+  // Relations
+  role       Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
+}
+
+// Optional: Audit log - Track changes
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String   // "CREATE", "UPDATE", "DELETE"
+  entity    String   // "User", "Role", "Address"
+  entityId  String
+  changes   Json?    // Store what changed
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([entityId])
+  @@index([createdAt])
+}
+
+// Query examples sau khi migration:
+// 
+// SELECT u.*, r.*, p.*
+// FROM "User" u
+// LEFT JOIN "Role" r ON u.id = u.id  -- or explicit join table
+// LEFT JOIN "Permission" p ON r.id = p."roleId"
+// WHERE u.id = 'user-123'
+// 
+// SELECT u.* FROM "User" u
+// WHERE u."roleIds" @> ARRAY['admin-role-id']::text[]  -- PostgreSQL array containment
+//
+// SELECT u.* FROM "User" u
+// LEFT JOIN "Address" a ON u.id = a."userId"
+// WHERE a."isPrimary" = true

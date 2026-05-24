@@ -1,0 +1,166 @@
+PROJECT_ROOT/
+│
+├── src/
+│   ├── domain/                    # Layer 1: Domain (Business rules, không phụ thuộc vào framework)
+│   │   ├── entities/              # Domain objects
+│   │   │   ├── User.ts
+│   │   │   ├── Product.ts
+│   │   │   └── Order.ts
+│   │   ├── repositories/          # Repository interfaces (abstractions)
+│   │   │   ├── IUserRepository.ts
+│   │   │   ├── IProductRepository.ts
+│   │   │   └── IOrderRepository.ts
+│   │   ├── services/              # Domain services (pure business logic)
+│   │   │   ├── UserDomainService.ts
+│   │   │   └── OrderDomainService.ts
+│   │   └── exceptions/            # Custom errors
+│   │       ├── DomainException.ts
+│   │       └── ValidationException.ts
+│   │
+│   ├── application/               # Layer 2: Application (Use cases / orchestration)
+│   │   ├── dtos/                  # Data Transfer Objects
+│   │   │   ├── CreateUserDTO.ts
+│   │   │   ├── UserResponseDTO.ts
+│   │   │   └── CreateOrderDTO.ts
+│   │   ├── usecases/              # Use case logic (orchestrate domain + repositories)
+│   │   │   ├── user/
+│   │   │   │   ├── CreateUserUseCase.ts
+│   │   │   │   ├── GetUserByIdUseCase.ts
+│   │   │   │   └── UpdateUserUseCase.ts
+│   │   │   ├── product/
+│   │   │   │   ├── ListProductsUseCase.ts
+│   │   │   │   └── GetProductByIdUseCase.ts
+│   │   │   └── order/
+│   │   │       ├── CreateOrderUseCase.ts
+│   │   │       └── GetOrdersUseCase.ts
+│   │   ├── mappers/               # Convert between DTOs and entities
+│   │   │   ├── UserMapper.ts
+│   │   │   └── OrderMapper.ts
+│   │   └── interfaces/            # Service interfaces
+│   │       ├── IEmailService.ts
+│   │       ├── IQueueService.ts
+│   │       ├── IEventBus.ts
+│   │       └── ISocketService.ts
+│   │
+│   ├── infrastructure/            # Layer 3: Infrastructure (Implementations)
+│   │   ├── database/
+│   │   │   ├── repositories/      # Repository implementations
+│   │   │   │   ├── PostgresUserRepository.ts
+│   │   │   │   ├── PostgresProductRepository.ts
+│   │   │   │   └── PostgresOrderRepository.ts
+│   │   │   ├── migrations/
+│   │   │   │   └── *.sql
+│   │   │   ├── prisma.ts          # Prisma client singleton
+│   │   │   └── seeds.ts
+│   │   ├── queue/
+│   │   │   ├── RedisQueueService.ts
+│   │   │   ├── RabbitMQQueueService.ts
+│   │   │   ├── QueueConsumer.ts   # Worker processes
+│   │   │   └── jobs/              # Job handlers
+│   │   │       ├── SendWelcomeEmailJob.ts
+│   │   │       └── ProcessOrderJob.ts
+│   │   ├── email/
+│   │   │   ├── SendgridEmailService.ts
+│   │   │   ├── ResendEmailService.ts
+│   │   │   └── templates/
+│   │   │       ├── WelcomeEmail.tsx
+│   │   │       └── OrderConfirmationEmail.tsx
+│   │   ├── socket/
+│   │   │   ├── SocketIOService.ts
+│   │   │   ├── namespaces/
+│   │   │   │   ├── NotificationNamespace.ts
+│   │   │   │   └── ChatNamespace.ts
+│   │   │   └── handlers/
+│   │   │       ├── ConnectionHandler.ts
+│   │   │       └── MessageHandler.ts
+│   │   ├── events/
+│   │   │   ├── EventBus.ts        # Event emitter implementation
+│   │   │   ├── subscribers/       # Event listeners
+│   │   │   │   ├── UserCreatedSubscriber.ts
+│   │   │   │   └── OrderCreatedSubscriber.ts
+│   │   │   └── events/
+│   │   │       ├── UserCreatedEvent.ts
+│   │   │       └── OrderCreatedEvent.ts
+│   │   └── cache/
+│   │       ├── RedisCache.ts
+│   │       └── InMemoryCache.ts
+│   │
+│   ├── presentation/             # Layer 4: Presentation (Next.js)
+│   │   ├── pages/
+│   │   │   ├── api/
+│   │   │   │   ├── users/
+│   │   │   │   │   ├── index.ts  # GET /api/users, POST /api/users
+│   │   │   │   │   └── [id].ts   # GET /api/users/[id], PUT /api/users/[id]
+│   │   │   │   ├── products/
+│   │   │   │   │   └── index.ts
+│   │   │   │   ├── orders/
+│   │   │   │   │   ├── index.ts
+│   │   │   │   │   └── [id].ts
+│   │   │   │   └── socket.ts     # Socket.IO API route
+│   │   │   ├── users/
+│   │   │   │   ├── index.tsx
+│   │   │   │   ├── [id].tsx
+│   │   │   │   └── new.tsx
+│   │   │   └── products/
+│   │   │       └── index.tsx
+│   │   ├── components/
+│   │   │   ├── forms/
+│   │   │   │   ├── CreateUserForm.tsx
+│   │   │   │   └── CreateOrderForm.tsx
+│   │   │   ├── common/
+│   │   │   │   ├── Button.tsx
+│   │   │   │   └── Modal.tsx
+│   │   │   └── hooks/
+│   │   │       ├── useUser.ts
+│   │   │       ├── useSocket.ts
+│   │   │       └── useNotifications.ts
+│   │   ├── controllers/          # Request/Response handlers
+│   │   │   ├── UserController.ts
+│   │   │   ├── ProductController.ts
+│   │   │   └── OrderController.ts
+│   │   ├── middleware/
+│   │   │   ├── auth.ts
+│   │   │   ├── errorHandler.ts
+│   │   │   ├── validation.ts
+│   │   │   └── cors.ts
+│   │   └── utils/
+│   │       ├── validators.ts
+│   │       └── response.ts
+│   │
+│   ├── config/                   # Configuration
+│   │   ├── database.ts
+│   │   ├── queue.ts
+│   │   ├── email.ts
+│   │   ├── socket.ts
+│   │   └── environment.ts
+│   │
+│   ├── di/                       # Dependency Injection Container
+│   │   ├── Container.ts
+│   │   └── register.ts           # Register all dependencies
+│   │
+│   └── shared/
+│       ├── constants.ts
+│       ├── types.ts
+│       └── helpers.ts
+│
+├── tests/
+│   ├── unit/
+│   │   ├── domain/
+│   │   │   └── OrderDomainService.test.ts
+│   │   └── application/
+│   │       └── CreateUserUseCase.test.ts
+│   ├── integration/
+│   │   ├── repositories/
+│   │   │   └── PostgresUserRepository.test.ts
+│   │   └── usecases/
+│   │       └── CreateUserUseCase.test.ts
+│   └── e2e/
+│       └── user.e2e.test.ts
+│
+├── .env.local
+├── .env.example
+├── next.config.js
+├── tsconfig.json
+├── package.json
+└── prisma/
+    └── schema.prisma

@@ -1,48 +1,55 @@
-import { PrismaVocabularyRepository } from "@/infrastructure/database/prisma/repositories/PrismaVocabularyRepository"
-import { PrismaUserProfileRepository } from "@/infrastructure/database/prisma/repositories/PrismaUserProfileRepository"
-import { PrismaGameRepository } from "@/infrastructure/database/prisma/repositories/PrismaGameRepository"
-import { GetVocabularyList } from "@/use-cases/vocabulary/GetVocabularyList"
-import { GetVocabularyCategories } from "@/use-cases/vocabulary/GetVocabularyCategories"
-import { CreateVocabulary } from "@/use-cases/vocabulary/CreateVocabulary"
-import { UpdateVocabulary } from "@/use-cases/vocabulary/UpdateVocabulary"
-import { DeleteVocabulary } from "@/use-cases/vocabulary/DeleteVocabulary"
-import { GetMyProfile } from "@/use-cases/profile/GetMyProfile"
-import { UpdateMyProfile } from "@/use-cases/profile/UpdateMyProfile"
-import { ListUsersForAdmin } from "@/core/use-cases/admin/ListUsersForAdmin"
-import { UpdateUserAccessForAdmin } from "@/core/use-cases/admin/UpdateUserAccessForAdmin"
-import { StartGameSession } from "@/use-cases/game/StartGameSession"
-import { SubmitGameAnswer } from "@/use-cases/game/SubmitGameAnswer"
-import { FinishGameSession } from "@/use-cases/game/FinishGameSession"
-import { GetMyGameHistory } from "@/use-cases/game/GetMyGameHistory"
+import { GetMyProfileUC } from '@/application/use-cases/profile/GetMyProfileUC';
+import { PrismaRoleRepositoryAdapter } from '../database/prisma/repositories/PrismaRoleRepositoryAdapter';
+import { PrismaSessionRepositoryAdapter } from '../database/prisma/repositories/PrismaSessionRepositoryAdapter';
+import { PrismaUserAuthProviderRepositoryAdapter } from '../database/prisma/repositories/PrismaUserAuthProviderRepositoryAdapter';
+import { PrismaUserProfileRepositoryAdapter } from '../database/prisma/repositories/PrismaUserProfileRepositoryAdapter';
+import { PrismaUserRoleRepositoryAdapter } from '../database/prisma/repositories/PrismaUserRoleRepositoryAdapter';
+import { UpdateMyProfileUC } from '@/application/use-cases/profile/UpdateMyProfileUC';
+import { BcryptAdapter } from '../hash/BcryptAdapter';
+import { AssignRoleUC } from '@/application/use-cases/auth/AssignRoleUC';
+import { SignInWithEmailPasswordUC } from '@/application/use-cases/auth/SignInWithEmailPasswordUC';
+import { SignUpWithEmailPasswordUC } from '@/application/use-cases/auth/SignUpWithEmailPasswordUC';
+import { SignInWithOAuthUC } from '@/application/use-cases/auth/SignInWithOAuthUC';
+import { JWTTokenAdapter } from '../token/JWTTokenAdapter';
 
 export function createRequestContainer() {
-  const vocabularyRepo = new PrismaVocabularyRepository()
-  const profileRepo = new PrismaUserProfileRepository()
-  const gameRepo = new PrismaGameRepository()
+    //   const vocabularyRepo = new PrismaVocabularyRepository()
+    const profileRepo = new PrismaUserProfileRepositoryAdapter();
+    const userAuthProviderRepo = new PrismaUserAuthProviderRepositoryAdapter();
+    const roleRepo = new PrismaRoleRepositoryAdapter();
+    const userRoleRepo = new PrismaUserRoleRepositoryAdapter();
+    const sessionRepo = new PrismaSessionRepositoryAdapter();
 
-  return {
-    vocabulary: {
-      repo: vocabularyRepo,
-      getList: new GetVocabularyList(vocabularyRepo),
-      getCategories: new GetVocabularyCategories(vocabularyRepo),
-      create: new CreateVocabulary(vocabularyRepo),
-      update: new UpdateVocabulary(vocabularyRepo),
-      delete: new DeleteVocabulary(vocabularyRepo),
-    },
-    profile: {
-      getMyProfile: new GetMyProfile(profileRepo),
-      updateMyProfile: new UpdateMyProfile(profileRepo),
-    },
-    admin: {
-      listUsers: new ListUsersForAdmin(profileRepo),
-      updateUserAccess: new UpdateUserAccessForAdmin(profileRepo),
-    },
-    game: {
-      startSession: new StartGameSession(gameRepo),
-      submitAnswer: new SubmitGameAnswer(gameRepo),
-      finishSession: new FinishGameSession(gameRepo),
-      history: new GetMyGameHistory(gameRepo),
-    },
-  }
+    const hashAdapter = new BcryptAdapter();
+
+    // use-case orchestration
+    const assignRoleUC = new AssignRoleUC(roleRepo, userRoleRepo);
+    return {
+        hash: {
+            bcrypt: hashAdapter,
+        },
+        tokenProvider: new JWTTokenAdapter(),
+        auth: {
+            assignRoleUC,
+            signInWithEmailPasswordUC: new SignInWithEmailPasswordUC(
+                hashAdapter,
+                userAuthProviderRepo,
+            ),
+            signUpWithEmailPasswordUC: new SignUpWithEmailPasswordUC(
+                hashAdapter,
+                userAuthProviderRepo,
+                profileRepo,
+                assignRoleUC,
+            ),
+            signInWithOAuthUC: new SignInWithOAuthUC(
+                userAuthProviderRepo,
+                profileRepo,
+                assignRoleUC,
+            ),
+        },
+        profile: {
+            getMyProfileUC: new GetMyProfileUC(profileRepo),
+            updateMyProfileUC: new UpdateMyProfileUC(profileRepo),
+        }, 
+    };
 }
-

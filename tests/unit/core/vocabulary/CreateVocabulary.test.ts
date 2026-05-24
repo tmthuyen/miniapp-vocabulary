@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { CreateVocabulary } from "@/use-cases/vocabulary/CreateVocabulary"
+import { CreateVocabulary } from "@/application/use-cases/vocabulary/CreateVocabulary"
 import type { IVocabularyRepository } from "@/domain/repositories/IVocabularyRepository"
 import { Vocabulary } from "@/domain/entities/Vocabulary"
 
