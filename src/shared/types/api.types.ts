@@ -1,7 +1,11 @@
-export type ApiErrorBody = { code: string; message: string; errors: string[] };
+export type ApiErrorBody = {
+  success: false;
+  message: string;
+  details?: string[];
+};
 
 export type ApiOkBody<T> = {
-  code: 'ok';
-  data: T;
+  success: true;
   message: string;
+  data: T;
 };

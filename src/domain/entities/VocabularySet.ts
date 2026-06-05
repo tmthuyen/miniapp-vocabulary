@@ -1,110 +1,265 @@
-import { z } from 'zod';
-import { BaseDomain, baseSchema } from './BaseDomain';
+import { BaseDomain, BaseDomainProps } from './BaseDomain';
+import { DomainError } from '../exception/DomainError';
 
-export const vocabularySetSchema = z.object({
-    id: z.string(),
-    user_id: z.string(),
-    is_admin_set: z.boolean().default(false), // nếu là của admin thì nhiều user có thể dùng khi có tài khoản
-    name: z.string().nonempty(),
-    description: z.string().nullable(),
-    is_published: z.boolean().default(false),
-    published_at: z.date().nullable(),
-    published_by: z.string().nullable(),
-    ...baseSchema.shape,
-});
+export type VocabularySetProps = BaseDomainProps & {
+    id: string;
+    user_id: string;
+    is_admin_set: boolean;
+    name: string;
+    description: string | null;
+    is_published: boolean;
+    published_at: Date | null;
+    published_by: string | null;
+};
 
 export class VocabularySet extends BaseDomain {
-    private domainProps: z.infer<typeof vocabularySetSchema>;
-    constructor(inputProps: z.infer<typeof vocabularySetSchema>) {
-        super(inputProps);
-        const parsed = vocabularySetSchema.safeParse(inputProps);
-        if (!parsed.success) {
-            throw new Error('Invalid vocabulary set data');
-        }
-        this.domainProps = parsed.data;
-    }
-
-    getDTO(): z.infer<typeof vocabularySetSchema> {
-        return this.domainProps;
-    }
-
-    createVocabularySet(
-        audit_user_id: string,
-        inputSet: z.infer<typeof vocabularySetSchema>,
+    constructor(
+        private id: string,
+        private user_id: string,
+        private is_admin_set: boolean,
+        private name: string,
+        private description: string | null,
+        private is_published: boolean,
+        private published_at: Date | null,
+        private published_by: string | null,
+        created_at: Date | null,
+        created_by: string | null,
+        updated_at: Date | null,
+        updated_by: string | null,
     ) {
-        super.createBaseDomain(audit_user_id);
-        const merged = { ...inputSet, ...super.getDTO() };
-        const parsed = vocabularySetSchema.safeParse(merged);
-        if (!parsed.success) {
-            throw new Error('Invalid vocabulary set data');
-        }
-        this.domainProps = parsed.data;
+        super(created_at, created_by, updated_at, updated_by);
+        this.validate();
     }
 
-    updateVocabularySet(
+    /**
+     * Validate dữ liệu vocabulary set
+     */
+    private validate(): void {
+        if (!this.id?.trim()) {
+            throw new DomainError('Vocabulary set ID is required', 400);
+        }
+        if (!this.user_id?.trim()) {
+            throw new DomainError('User ID is required', 400);
+        }
+        if (!this.name?.trim()) {
+            throw new DomainError('Name is required', 400);
+        }
+    }
+
+    /**
+     * Lấy toàn bộ dữ liệu VocabularySet dưới dạng DTO
+     */
+    getDTO(): VocabularySetProps {
+        return {
+            id: this.id,
+            user_id: this.user_id,
+            is_admin_set: this.is_admin_set,
+            name: this.name,
+            description: this.description,
+            is_published: this.is_published,
+            published_at: this.published_at,
+            published_by: this.published_by,
+            ...this.getBaseDomainDTO(),
+        };
+    }
+
+    /**
+     * Getter - id
+     */
+    getId(): string {
+        return this.id;
+    }
+
+    /**
+     * Getter - user_id
+     */
+    getUserId(): string {
+        return this.user_id;
+    }
+
+    /**
+     * Getter - is_admin_set
+     */
+    isAdminSet(): boolean {
+        return this.is_admin_set;
+    }
+
+    /**
+     * Getter - name
+     */
+    getName(): string {
+        return this.name;
+    }
+
+    /**
+     * Getter - description
+     */
+    getDescription(): string | null {
+        return this.description;
+    }
+
+    /**
+     * Getter - is_published
+     */
+    isPublished(): boolean {
+        return this.is_published;
+    }
+
+    /**
+     * Getter - published_at
+     */
+    getPublishedAt(): Date | null {
+        return this.published_at;
+    }
+
+    /**
+     * Getter - published_by
+     */
+    getPublishedBy(): string | null {
+        return this.published_by;
+    }
+
+    /**
+     * Tạo mới VocabularySet
+     */
+    static create(input: {
+        audit_user_id: string;
+        new_id: string;
+        user_id: string;
+        name: string;
+        description?: string | null;
+        is_admin_set?: boolean;
+    }): VocabularySet {
+        const {
+            audit_user_id,
+            new_id,
+            user_id,
+            name,
+            description = null,
+            is_admin_set = false,
+        } = input;
+
+        if (!audit_user_id?.trim()) {
+            throw new DomainError('Audit user ID is required', 400);
+        }
+        if (!new_id?.trim()) {
+            throw new DomainError('Vocabulary set ID is required', 400);
+        }
+        if (!user_id?.trim()) {
+            throw new DomainError('User ID is required', 400);
+        }
+        if (!name?.trim()) {
+            throw new DomainError('Name is required', 400);
+        }
+
+        const now = new Date();
+        return new VocabularySet(
+            new_id,
+            user_id,
+            is_admin_set,
+            name,
+            description ?? null,
+            false,
+            null,
+            null,
+            now,
+            audit_user_id,
+            now,
+            audit_user_id,
+        );
+    }
+
+    /**
+     * Restore VocabularySet từ database (không validation, giữ nguyên audit trail)
+     */
+    static restore(data: VocabularySetProps): VocabularySet {
+        return new VocabularySet(
+            data.id,
+            data.user_id,
+            data.is_admin_set,
+            data.name,
+            data.description,
+            data.is_published,
+            data.published_at,
+            data.published_by,
+            data.created_at,
+            data.created_by,
+            data.updated_at,
+            data.updated_by,
+        );
+    }
+
+    /**
+     * Cập nhật một vài hoặc toàn bộ thuộc tính của VocabularySet
+     */
+    update(
         audit_user_id: string,
-        updates: Partial<z.infer<typeof vocabularySetSchema>>,
-    ) {
-        super.updateBaseDomain(audit_user_id);
-        const newData = { ...this.domainProps, ...updates, ...super.getDTO() };
-        const parsed = vocabularySetSchema.safeParse(newData);
-        if (!parsed.success) {
-            throw new Error('Invalid vocabulary set update data');
+        updates: Partial<Omit<VocabularySetProps, keyof BaseDomainProps | 'id' | 'user_id' | 'is_admin_set' | 'is_published' | 'published_at' | 'published_by'>>,
+    ): void {
+        if (!audit_user_id?.trim()) {
+            throw new DomainError('Audit user ID is required', 400);
         }
-        this.domainProps = parsed.data;
+
+        if (updates.name !== undefined) {
+            if (!updates.name?.trim()) {
+                throw new DomainError('Name cannot be empty', 400);
+            }
+            this.name = updates.name;
+        }
+
+        if (updates.description !== undefined) {
+            this.description = updates.description;
+        }
+
+        this.updateAuditDomain(audit_user_id);
     }
 
-    publish(audit_user_id: string, isPublished: boolean) {
-        this.updateVocabularySet(audit_user_id, {
-            is_published: isPublished,
-            published_at: isPublished ? new Date() : null,
-            published_by: isPublished ? audit_user_id : null,
-        });
+    /**
+     * Publish hoặc unpublish vocabulary set
+     */
+    setPublished(audit_user_id: string, isPublished: boolean): void {
+        if (!audit_user_id?.trim()) {
+            throw new DomainError('Audit user ID is required', 400);
+        }
+
+        if (this.is_published === isPublished) {
+            throw new DomainError(
+                `Vocabulary set is already ${isPublished ? 'published' : 'unpublished'}`,
+                400,
+            );
+        }
+
+        this.is_published = isPublished;
+        this.published_at = isPublished ? new Date() : null;
+        this.published_by = isPublished ? audit_user_id : null;
+
+        this.updateAuditDomain(audit_user_id);
+    }
+
+    /**
+     * Publish vocabulary set
+     */
+    publish(audit_user_id: string): void {
+        this.setPublished(audit_user_id, true);
+    }
+
+    /**
+     * Unpublish vocabulary set
+     */
+    unpublish(audit_user_id: string): void {
+        this.setPublished(audit_user_id, false);
+    }
+
+    /**
+     * Cập nhật thông tin cơ bản (name, description)
+     */
+    updateBasicInfo(
+        audit_user_id: string,
+        updates: {
+            name?: string;
+            description?: string | null;
+        },
+    ): void {
+        this.update(audit_user_id, updates);
     }
 }
-
-// export interface VocabularySetProps {
-//   id: string
-//   userId: string
-//   name: string
-//   description: string | null
-//   is_published: boolean
-//   created_at: string
-//   updated_at: string
-// }
-
-// export interface VocabularySetDTO {
-//   id: string
-//   user_id: string
-//   name: string
-//   description: string | null
-//   is_published: boolean
-//   created_at: string
-//   updated_at: string
-// }
-
-// export class VocabularySet {
-//   constructor(private readonly props: VocabularySetProps) {
-//     if (!props.id) throw new Error("VocabularySet.id is required")
-//     if (!props.userId) throw new Error("VocabularySet.userId is required")
-//     if (!props.name?.trim()) throw new Error("VocabularySet.name is required")
-//     if (!props.created_at) throw new Error("VocabularySet.created_at is required")
-//     if (!props.updated_at) throw new Error("VocabularySet.updated_at is required")
-//   }
-
-//   isPublished() {
-//     return this.props.is_published
-//   }
-
-//   toDTO(): VocabularySetDTO {
-//     return {
-//       id: this.props.id,
-//       user_id: this.props.userId,
-//       name: this.props.name,
-//       description: this.props.description,
-//       is_published: this.props.is_published,
-//       created_at: this.props.created_at,
-//       updated_at: this.props.updated_at,
-//     }
-//   }
-// }

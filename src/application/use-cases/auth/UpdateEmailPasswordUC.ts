@@ -2,7 +2,7 @@ import z from 'zod';
 import { IUserAuthProviderRepository } from '@/domain/repositories/IUserAuthProviderRepository';
 import { UserAuthProvider } from '@/domain/entities/UserAuthProvider';
 import { generateUniqueId } from '@/shared/utils/idUtils';
-import { IPasswordHasher } from '@/application/interfaces/hash/IPasswordHasher';
+import { IPasswordHasher } from '@/application/interfaces/port/hash/IPasswordHasher';
 
 export const updateEmailPasswordInput = z.object({
     audit_user_id: z.string().nonempty(),

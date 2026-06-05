@@ -8,7 +8,7 @@ import { prisma } from "../client";
 // mapper
 export class SessionMapper {
     static toDomainFromPrisma = (row: SessionPrisma): Session => {
-        const props = {
+        return Session.restore({
             id: row.id,
             user_id: row.user_id,
             session_token: row.session_token,
@@ -19,8 +19,7 @@ export class SessionMapper {
             created_by: row.created_by,
             updated_at: row.updated_at,
             updated_by: row.updated_by,
-        };
-        return new Session(props);
+        });
     }
 
     static toPrismaFromDomain = (entity: Session): SessionPrisma => {

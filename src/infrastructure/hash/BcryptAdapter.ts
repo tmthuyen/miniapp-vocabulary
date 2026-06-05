@@ -1,4 +1,4 @@
-import { IPasswordHasher } from '@/application/interfaces/hash/IPasswordHasher';
+import { IPasswordHasher } from '@/application/interfaces/port/hash/IPasswordHasher';
 import bcrypt from 'bcryptjs';
 export class BcryptAdapter implements IPasswordHasher {
     async hash(password: string, saltNum: number): Promise<string> {

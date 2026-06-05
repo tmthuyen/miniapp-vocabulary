@@ -13,7 +13,7 @@ import { IUserRoleRepository } from "@/domain/repositories/IUserRoleRepository";
 // mapper
 export class UserRoleMapper {
     static toDomainFromPrisma = (row: UserRolePrisma): UserRole => {
-        const props = {
+        return UserRole.restore({
             id: row.id,
             user_id: row.user_id,
             role_id: row.role_id,
@@ -21,8 +21,7 @@ export class UserRoleMapper {
             created_by: row.created_by,
             updated_at: row.updated_at,
             updated_by: row.updated_by,
-        };
-        return new UserRole(props);
+        });
     }
 
     static toPrismaFromDomain = (entity: UserRole): UserRolePrisma => {

@@ -1,26 +1,15 @@
-﻿import { requireAdmin, requireUser } from "@/infrastructure/api/next/requireUser"
-import type { CreateVocabularyInput } from "@/domain/repositories/IVocabularyRepository"
+import { NextRequest, NextResponse } from 'next/server';
+import withErrorHandling from '@/infrastructure/api/next/withErrorHandling';
 
-export async function GET() {
-  const auth = await requireUser()
-  if (!auth.ok) return Response.json({ message: auth.message }, { status: auth.status })
-  const list = await auth.di.vocabulary.getList.execute(auth.userId)
-  return Response.json(list.map((v) => v.toDTO()))
-}
+export const GET = withErrorHandling(async (req: NextRequest) => {
+    const responseData = {
+        success: true,
+        status: 200,
+        message: 'Vocabulary list retrieved successfully',
+        data: [
+            { id: 1, word: 'aberration', meaning: 'a departure from what is normal, usual, or expected' },
+        ],
+    };
 
-export async function POST(req: Request) {
-  const auth = await requireAdmin()
-  if (!auth.ok) return Response.json({ message: auth.message }, { status: auth.status })
-
-  const body = (await req.json()) as Partial<CreateVocabularyInput>
-  const created = await auth.di.vocabulary.create.execute(auth.userId, {
-    word: body.word ?? "",
-    ipa: body.ipa ?? null,
-    definition: body.definition ?? null,
-    example: body.example ?? null,
-    category: body.category ?? "General",
-    difficulty: (body.difficulty as any) ?? "Medium",
-  })
-
-  return Response.json(created.toDTO())
-}
+    return NextResponse.json(responseData, { status: 200 });
+});

@@ -1,19 +1,19 @@
-﻿import { createUser, signIn } from "@/infrastructure/auth/prismaAuth"
+﻿import { NextRequest, NextResponse } from 'next/server';
+import { createRequestContainer } from '@/infrastructure/di/container';
+import withErrorHandling from '@/infrastructure/api/next/withErrorHandling';
 
-export async function POST(req: Request) {
-  const body = (await req.json()) as { email?: string; password?: string }
-  const email = body.email?.trim().toLowerCase() ?? ""
-  const password = body.password ?? ""
+export const POST = withErrorHandling(async (req: NextRequest) => {
+  const di = createRequestContainer();
 
-  if (!email || !password || password.length < 6) {
-    return Response.json({ message: "Invalid signup data" }, { status: 400 })
-  }
+  const body = await req.json();
+  const { email, password, password_confirm, full_name } = body;
 
-  try {
-    await createUser(email, password)
-    await signIn(email, password)
-    return Response.json({ ok: true })
-  } catch {
-    return Response.json({ message: "Email already exists" }, { status: 409 })
-  }
-}
+  await di.auth.signUpWithEmailPasswordUC.execute({
+    email,
+    password,
+    password_confirm: password_confirm,
+    full_name: full_name || 'New User',
+  });
+
+  return NextResponse.json({ success: true, message: 'Signup successful' }, { status: 201 });
+});

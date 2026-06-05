@@ -1,7 +1,6 @@
 import type { IUserProfileRepository } from '@/domain/repositories/IUserProfileRepository';
 import type {
     UserProfile,
-    userProfileSchema,
 } from '@/domain/entities/UserProfile';
 import z from 'zod';
 

@@ -1,4 +1,4 @@
-import { IPasswordHasher } from '@/application/interfaces/hash/IPasswordHasher';
+import { IPasswordHasher } from '@/application/interfaces/port/hash/IPasswordHasher';
 import { IUserAuthProviderRepository } from '@/domain/repositories/IUserAuthProviderRepository';
 import { AppError } from '@/shared/errors/AppError';
 import z from 'zod';
@@ -36,19 +36,18 @@ export class SignInWithEmailPasswordUC {
         const existing =
             await this.userAuthProviderRepo.getSignInProjectionByEmail(email);
         if (!existing) {
-            throw new AppError(
-                'Not found any account with this email',
-                'INVALID_CREDENTIALS',
-                404,
-            );
+            throw AppError.builder()
+                .withMessage('Invalid email or password')
+                .withCode('INVALID_CREDENTIALS')
+                .withStatus(400);
+
         }
 
         if (existing.password_hash === null) {
-            throw new AppError(
-                'Missing password for this account, please sign in with the provider you used to create this account',
-                'INVALID_CREDENTIALS',
-                400,
-            );
+            throw AppError.builder()
+                .withMessage('This email is registered with a social account. Please sign in with your social account.')
+                .withCode('SOCIAL_ACCOUNT')
+                .withStatus(400);
         }
 
         const isMatch = await this.bcrypt.verify(
@@ -56,11 +55,10 @@ export class SignInWithEmailPasswordUC {
             existing.password_hash,
         );
         if (!isMatch) {
-            throw new AppError(
-                'Invalid email or password',
-                'INVALID_CREDENTIALS',
-                400,
-            );
+            throw AppError.builder()
+                .withMessage('Invalid email or password')
+                .withCode('INVALID_CREDENTIALS')
+                .withStatus(400);
         }
 
         return {

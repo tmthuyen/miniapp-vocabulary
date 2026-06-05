@@ -1,43 +1,44 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { toast } from "sonner"
+import { login } from "@/infrastructure/api/auth-api"
 
 export default function LoginPage() {
+  const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    setEmail("admin@gmail.com")
+    setPassword("123456")
+  }, [])
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError(null)
     setLoading(true)
 
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      })
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        throw new Error(body.message || "Failed to sign in")
-      }
-
-      // Wait a bit for session to be set in cookies
-      await new Promise((resolve) => setTimeout(resolve, 100))
-
-      // Force a full page reload to ensure middleware picks up the session
-      window.location.href = "/dashboard"
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to sign in"
-      setError(errorMessage)
+    const res = await login({ email, password })
+    if (!res.success) {
+      setError(res.message || "Failed to sign in")
       setLoading(false)
+      return
     }
+
+    setLoading(false)
+    toast.success("Signed in successfully", { duration: 900, position: "top-right" })
+    setTimeout(() => {
+      router.replace("/dashboard")
+    }, 2000)
+
   }
 
   return (
@@ -67,6 +68,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                autoComplete="email"
                 disabled={loading}
               />
             </div>
@@ -81,6 +83,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                autoComplete="current-password"
                 disabled={loading}
               />
             </div>

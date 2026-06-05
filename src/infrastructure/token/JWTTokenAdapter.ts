@@ -1,7 +1,7 @@
 import {
     ITokenProvider,
     tokenPayload,
-} from '@/application/interfaces/token/ITokenProvider';
+} from '@/application/interfaces/port/token/ITokenProvider';
 import jwt from 'jsonwebtoken';
 
 export class JWTTokenAdapter implements ITokenProvider {

@@ -2,20 +2,35 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { toast } from "sonner"
+import { signupWithEmail } from "@/infrastructure/api/auth-api"
 
 export default function SignupPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
+  const router = useRouter()
+  const [fullName, setFullName] = useState("Trần Thuyên")
+  const [email, setEmail] = useState("tranthuyen2222@gmail.com")
+  const [password, setPassword] = useState("123456")
+  const [confirmPassword, setConfirmPassword] = useState("123456")
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+
+    if (!fullName.trim()) {
+      setError("Full name is required")
+      return
+    }
+
+    if (!email.trim()) {
+      setError("Email is required")
+      return
+    }
 
     if (password !== confirmPassword) {
       setError("Passwords do not match")
@@ -28,28 +43,19 @@ export default function SignupPage() {
     }
 
     setLoading(true)
+    const result = await signupWithEmail({ email, password, password_confirm: confirmPassword, full_name: fullName })
 
-    try {
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      })
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        throw new Error(body.message || "Failed to sign up")
-      }
-
-      // Wait a bit for session to be set in cookies
-      await new Promise((resolve) => setTimeout(resolve, 100))
-
-      // Force a full page reload to ensure middleware picks up the session
-      window.location.href = "/dashboard"
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to sign up"
-      setError(errorMessage)
+    if (!result.success) {
+      setError(result.message || "Failed to sign up")
       setLoading(false)
+      return
     }
+
+    // show success message or redirect to login page
+    toast.success(result?.message || "Account created successfully! Please log in.", { duration: 3000 })
+    setTimeout(() => {
+      router.replace("/auth/login")
+    }, 1000)
   }
 
   return (
@@ -68,6 +74,20 @@ export default function SignupPage() {
                 {error}
               </div>
             )}
+            <div className="space-y-2">
+              <label htmlFor="full_name" className="text-sm font-medium">
+                Full Name
+              </label>
+              <Input
+                id="full_name"
+                type="text"
+                placeholder="John Doe"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+                disabled={loading}
+              />
+            </div>
             <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium">
                 Email

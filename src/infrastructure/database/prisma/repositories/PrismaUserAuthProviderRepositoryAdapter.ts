@@ -1,4 +1,4 @@
-import { UserAuthProvider } from "@/domain/entities/UserAuthProvider";
+import { UserAuthProvider, ProviderType } from "@/domain/entities/UserAuthProvider";
 import { IUserAuthProviderRepository, SignInProjection } from "@/domain/repositories/IUserAuthProviderRepository";
 import { UserAuthProvider as UserAuthProviderPrisma } from "@prisma/client";
 import { prisma } from "../client"; 
@@ -6,10 +6,10 @@ import { prisma } from "../client";
 // mapper
 export class UserAuthProviderMapper {
     static toDomainFromPrisma = (row: UserAuthProviderPrisma): UserAuthProvider => {
-        const props = {
+        return UserAuthProvider.restore({
             id: row.id,
             user_id: row.user_id,
-            provider_type: row.provider_type,
+            provider_type: row.provider_type as ProviderType,
             provider_user_id: row.provider_user_id,
             email: row.email,
             password_hash: row.password_hash,
@@ -18,8 +18,7 @@ export class UserAuthProviderMapper {
             created_by: row.created_by,
             updated_at: row.updated_at,
             updated_by: row.updated_by,
-        };
-        return new UserAuthProvider(props);
+        });
     }
 
     static toPrismaFromDomain = (entity: UserAuthProvider): UserAuthProviderPrisma => {

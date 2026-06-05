@@ -58,6 +58,7 @@ model UserRole {
   updated_at DateTime @updatedAt
   updated_by String?  
   
+  @@unique([user_id, role_id])
   @@index([user_id])
   @@index([role_id])
   @@map("user_roles")

@@ -2,10 +2,11 @@
 import { UserProfile } from '@/domain/entities/UserProfile';
 import { IUserProfileRepository } from '@/domain/repositories/IUserProfileRepository';
 import { prisma } from '../client';
+import { UserProfileWithRolesProjection } from '@/domain/repositories/projections/user-projections';
 
 class UserProfileMapper {
     static toDomainFromPrisma = (row: UserProfilePrisma): UserProfile => {
-        const props = {
+        return UserProfile.restore({
             id: row.id,
             full_name: row.full_name || '',
             status: row.status,
@@ -17,8 +18,7 @@ class UserProfileMapper {
             created_by: row.created_by,
             updated_at: row.updated_at,
             updated_by: row.updated_by,
-        };
-        return new UserProfile(props);
+        });
     };
     static toPrismaFromDomain = (entity: UserProfile): UserProfilePrisma => {
         const dto = entity.getDTO();
@@ -54,6 +54,32 @@ export class PrismaUserProfileRepositoryAdapter implements IUserProfileRepositor
         });
         if (!row) return null;
         return UserProfileMapper.toDomainFromPrisma(row);
+    }
+
+    async getByUserIdWithRoles(userId: string): Promise<UserProfileWithRolesProjection | null> {
+        const row = await prisma.userProfile.findUnique({
+            where: { id: userId },
+            include: {
+                user_roles: {
+                    include: { role: true },
+                },
+            },
+        });
+        if (!row) return null;
+        const roleCodes = row.user_roles.map(ur => ur.role.code);
+        return new UserProfileWithRolesProjection(
+            row.id,
+            row.full_name || '',
+            row.avatar_url,
+            row.target_band,
+            row.vip_plan,
+            row.vip_expired_at,
+            row.created_at,
+            row.created_by || '',
+            row.updated_at,
+            row.updated_by || '',
+            roleCodes
+        );
     }
  
 

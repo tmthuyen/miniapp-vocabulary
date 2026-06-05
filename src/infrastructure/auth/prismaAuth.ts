@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers'
 import { prisma } from '@/infrastructure/database/prisma/client'
 
-const SESSION_COOKIE = 'session_token'
+const SESSION_COOKIE = 'access_token'
 
 export async function getCurrentUser() {
   const cookieStore = await cookies()

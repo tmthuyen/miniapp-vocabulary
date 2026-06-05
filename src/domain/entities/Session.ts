@@ -1,117 +1,219 @@
-import z from 'zod';
-import { baseSchema, BaseDomain } from './BaseDomain';
+import { BaseDomain, BaseDomainProps } from './BaseDomain';
+import { DomainError } from '../exception/DomainError';
 
-export const sessionSchema = z.object({
-    id: z.string(),
-    user_id: z.string(),
-    session_token: z.string().nonempty(),
-    issued_at: z.date(),
-    expires_at: z.date(),
-    revoked_at: z.date().nullable(),
-    ...baseSchema.shape,
-});
-
+export type SessionProps = BaseDomainProps & {
+    id: string;
+    user_id: string;
+    session_token: string;
+    issued_at: Date;
+    expires_at: Date;
+    revoked_at: Date | null;
+};
 
 export class Session extends BaseDomain {
-    private domainProps: z.infer<typeof sessionSchema>;
-    constructor(inputProps: z.infer<typeof sessionSchema>) {
-        super(inputProps);
-        const parsed = sessionSchema.safeParse(inputProps);
-        if (!parsed.success) {
-            throw new Error('Invalid session data');
+    constructor(
+        private id: string,
+        private user_id: string,
+        private session_token: string,
+        private issued_at: Date,
+        private expires_at: Date,
+        private revoked_at: Date | null,
+        created_at: Date | null,
+        created_by: string | null,
+        updated_at: Date | null,
+        updated_by: string | null,
+    ) {
+        super(created_at, created_by, updated_at, updated_by);
+        this.validate();
+    }
+
+    /**
+     * Validate dữ liệu session
+     */
+    private validate(): void {
+        if (!this.id?.trim()) {
+            throw new DomainError('Session ID is required', 400);
         }
-        this.domainProps = parsed.data;
+        if (!this.user_id?.trim()) {
+            throw new DomainError('User ID is required', 400);
+        }
+        if (!this.session_token?.trim()) {
+            throw new DomainError('Session token is required', 400);
+        }
+        if (!this.issued_at || !(this.issued_at instanceof Date)) {
+            throw new DomainError('Issued at must be a valid date', 400);
+        }
+        if (!this.expires_at || !(this.expires_at instanceof Date)) {
+            throw new DomainError('Expires at must be a valid date', 400);
+        }
     }
 
-    getDTO(): z.infer<typeof sessionSchema> {
-        return this.domainProps;
+    /**
+     * Lấy toàn bộ dữ liệu Session dưới dạng DTO
+     */
+    getDTO(): SessionProps {
+        return {
+            id: this.id,
+            user_id: this.user_id,
+            session_token: this.session_token,
+            issued_at: this.issued_at,
+            expires_at: this.expires_at,
+            revoked_at: this.revoked_at,
+            ...this.getBaseDomainDTO(),
+        };
     }
 
-    isExpired(now: Date = new Date()) {
-        return this.domainProps.expires_at <= now;
+    /**
+     * Getter - id
+     */
+    getId(): string {
+        return this.id;
     }
 
+    /**
+     * Getter - user_id
+     */
+    getUserId(): string {
+        return this.user_id;
+    }
+
+    /**
+     * Getter - session_token
+     */
+    getSessionToken(): string {
+        return this.session_token;
+    }
+
+    /**
+     * Getter - issued_at
+     */
+    getIssuedAt(): Date {
+        return this.issued_at;
+    }
+
+    /**
+     * Getter - expires_at
+     */
+    getExpiresAt(): Date {
+        return this.expires_at;
+    }
+
+    /**
+     * Getter - revoked_at
+     */
+    getRevokedAt(): Date | null {
+        return this.revoked_at;
+    }
+
+    /**
+     * Kiểm tra session có hết hạn hay không
+     */
+    isExpired(now: Date = new Date()): boolean {
+        return this.expires_at <= now;
+    }
+
+    /**
+     * Kiểm tra session có bị revoke hay không
+     */
+    isRevoked(): boolean {
+        return this.revoked_at !== null;
+    }
+
+    /**
+     * Tạo mới Session
+     */
     static create(input: {
-        audit_user_id: string,
+        audit_user_id: string;
         new_id: string;
         user_id: string;
         session_token: string;
         issued_at: Date;
         expires_at: Date;
     }): Session {
-        const entity = new Session({
-            id: input.new_id,
-            user_id: input.user_id,
-            session_token: input.session_token,
-            issued_at: input.issued_at,
-            expires_at: input.expires_at,
-            revoked_at: null,
-            created_at: null,
-            created_by: null,
-            updated_at: null,
-            updated_by: null,
-        });
+        const { audit_user_id, new_id, user_id, session_token, issued_at, expires_at } = input;
 
-        entity.createBaseDomain(input.audit_user_id);
-        
-        return entity;
-    }
-
-    update(audit_user_id: string, updates: Partial<z.infer<typeof sessionSchema>>) {
-        super.updateBaseDomain(audit_user_id);
-        const newData = { ...this.domainProps, ...updates, ...super.getDTO() };
-        const parsed = sessionSchema.safeParse(newData);
-        if (!parsed.success) {
-            throw new Error('Invalid session update data');
+        if (!audit_user_id?.trim()) {
+            throw new DomainError('Audit user ID is required', 400);
         }
-        this.domainProps = parsed.data;
+        if (!new_id?.trim()) {
+            throw new DomainError('Session ID is required', 400);
+        }
+        if (!user_id?.trim()) {
+            throw new DomainError('User ID is required', 400);
+        }
+        if (!session_token?.trim()) {
+            throw new DomainError('Session token is required', 400);
+        }
+
+        const now = new Date();
+        return new Session(
+            new_id,
+            user_id,
+            session_token,
+            issued_at,
+            expires_at,
+            null,
+            now,
+            audit_user_id,
+            now,
+            audit_user_id,
+        );
     }
 
-    revoke(audit_user_id: string) {
+    /**
+     * Restore Session từ database (không validation, giữ nguyên audit trail)
+     */
+    static restore(data: SessionProps): Session {
+        return new Session(
+            data.id,
+            data.user_id,
+            data.session_token,
+            data.issued_at,
+            data.expires_at,
+            data.revoked_at,
+            data.created_at,
+            data.created_by,
+            data.updated_at,
+            data.updated_by,
+        );
+    }
+
+    /**
+     * Cập nhật một vài hoặc toàn bộ thuộc tính của Session
+     */
+    update(
+        audit_user_id: string,
+        updates: Partial<Omit<SessionProps, keyof BaseDomainProps | 'id' | 'user_id' | 'session_token'>>,
+    ): void {
+        if (!audit_user_id?.trim()) {
+            throw new DomainError('Audit user ID is required', 400);
+        }
+
+        if (updates.issued_at !== undefined) {
+            if (!(updates.issued_at instanceof Date)) {
+                throw new DomainError('Issued at must be a valid date', 400);
+            }
+            this.issued_at = updates.issued_at;
+        }
+
+        if (updates.expires_at !== undefined) {
+            if (!(updates.expires_at instanceof Date)) {
+                throw new DomainError('Expires at must be a valid date', 400);
+            }
+            this.expires_at = updates.expires_at;
+        }
+
+        if (updates.revoked_at !== undefined) {
+            this.revoked_at = updates.revoked_at;
+        }
+
+        this.updateAuditDomain(audit_user_id);
+    }
+
+    /**
+     * Revoke session
+     */
+    revoke(audit_user_id: string): void {
         this.update(audit_user_id, { revoked_at: new Date() });
     }
-
-    
 }
-
-
-
-// export interface SessionProps {
-//   id: string
-//   userId: string
-//   session_token: string
-//   expires_at: string
-//   created_at: string
-// }
-
-// export interface SessionDTO {
-//   id: string
-//   user_id: string
-//   session_token: string
-//   expires_at: string
-//   created_at: string
-// }
-
-// export class Session {
-//   constructor(private readonly props: SessionProps) {
-//     if (!props.id) throw new Error("Session.id is required")
-//     if (!props.userId) throw new Error("Session.userId is required")
-//     if (!props.session_token?.trim()) throw new Error("Session.session_token is required")
-//     if (!props.expires_at) throw new Error("Session.expires_at is required")
-//     if (!props.created_at) throw new Error("Session.created_at is required")
-//   }
-
-//   isExpired(now: Date = new Date()) {
-//     return new Date(this.props.expires_at) <= now
-//   }
-
-//   toDTO(): SessionDTO {
-//     return {
-//       id: this.props.id,
-//       user_id: this.props.userId,
-//       session_token: this.props.session_token,
-//       expires_at: this.props.expires_at,
-//       created_at: this.props.created_at,
-//     }
-//   }
-// }

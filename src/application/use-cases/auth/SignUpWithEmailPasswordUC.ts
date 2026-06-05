@@ -1,4 +1,4 @@
-import { IPasswordHasher } from "@/application/interfaces/hash/IPasswordHasher";
+import { IPasswordHasher } from "@/application/interfaces/port/hash/IPasswordHasher";
 import { UserAuthProvider } from "@/domain/entities/UserAuthProvider";
 import { UserProfile } from "@/domain/entities/UserProfile";
 import { IUserAuthProviderRepository } from "@/domain/repositories/IUserAuthProviderRepository";
@@ -6,6 +6,7 @@ import { IUserProfileRepository } from "@/domain/repositories/IUserProfileReposi
 import { generateUniqueId } from "@/shared/utils/idUtils";
 import z from "zod";
 import { AssignRoleUC } from "./AssignRoleUC";
+import AppError from "@/shared/errors/AppError";
 
 export const signUpWithEmailPasswordInput = z.object({
     email: z.email().nonempty({ message: "Email is required" }),
@@ -34,13 +35,19 @@ export class SignUpWithEmailPasswordUC {
         const { email, password, password_confirm, full_name } = input;
         // kiếm tra password và password_confirm có khớp không
         if (password !== password_confirm) {
-            throw new Error('Password and password confirmation do not match');
+            throw AppError.builder()
+                .withMessage('Password and password confirmation do not match')
+                .withCode('PASSWORD_MISMATCH')
+                .withStatus(400);
         }
 
         // tìm user auth provider có email này
         const existing = await this.userAuthProviderRepo.getUserByEmail(email);
         if (existing) {
-            throw new Error('Email already in use');
+            throw AppError.builder()
+                .withMessage('Email already in use')
+                .withCode('EMAIL_IN_USE')
+                .withStatus(400);
         }
 
         // hash password
@@ -70,7 +77,7 @@ export class SignUpWithEmailPasswordUC {
         const savedAuthProvider = await this.userAuthProviderRepo.save(newUserAuthProvider);
 
         // gán role user mặc định cho user mới
-        await this.assignRoleUC.execute(newUserId, ['user']);
+        await this.assignRoleUC.execute(newUserId, ['USER']);
  
         return {
             user_id: savedUserProfile.getDTO().id,

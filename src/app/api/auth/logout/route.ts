@@ -1,6 +1,6 @@
-﻿import { signOut } from "@/infrastructure/auth/prismaAuth"
+﻿import { signOut } from '@/infrastructure/auth/prismaAuth';
 
 export async function POST() {
-  await signOut()
-  return Response.json({ ok: true })
+  await signOut();
+  return Response.json({ success: true, message: 'Logout successful' }, { status: 200 });
 }

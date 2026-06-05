@@ -12,7 +12,7 @@ import { Role } from '@/domain/entities/Role';
 
 export class RoleMapper {
     static toDomainFromPrisma = (row: RolePrisma): Role => {
-        const props = {
+        return Role.restore({
             id: row.id,
             name: row.name,
             code: row.code,
@@ -20,8 +20,7 @@ export class RoleMapper {
             created_by: row.created_by,
             updated_at: row.updated_at,
             updated_by: row.updated_by,
-        };
-        return new Role(props);
+        });
     }
     static toPrismaFromDomain = (entity: Role): RolePrisma => {
         const dto = entity.getDTO();

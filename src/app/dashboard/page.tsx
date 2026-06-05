@@ -6,6 +6,10 @@ import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { useRouter } from "next/navigation"
 import VocabularyList from "@/components/features/vocabulary/vocabulary-list"
+import { ApiErrorBody, ApiOkBody } from "@/shared/types/api.types"
+import { toast } from "sonner"
+import { getMe } from "@/infrastructure/api/auth-api"
+import { getVocabularyDashboard } from "@/infrastructure/api/vocabulary-api"
 interface VocabularyStats { totalToday: number; totalAllTime: number }
 
 export default function DashboardPage() {
@@ -16,24 +20,28 @@ export default function DashboardPage() {
 
   const loadStats = useCallback(async () => {
     try {
-      const meRes = await fetch("/api/auth/me")
-      const me = await meRes.json()
-      if (!me?.user) {
-        router.push("/auth/login")
-        return
+      const meRes = await getMe();
+      if (!meRes.success || meRes.status === 401) {
+        toast.error("You need to log in to access the dashboard", { duration: 5000, position: "top-right" });
+        router.push("/auth/login");
+        return;
       }
 
-      const res = await fetch("/api/vocabulary")
-      if (!res.ok) throw new Error("Failed to load vocabularies")
-      const list = (await res.json()) as Array<{ created_at: string }>
-      const today = new Date(); today.setHours(0,0,0,0)
-      setStats({ totalAllTime: list.length, totalToday: list.filter((v) => new Date(v.created_at) >= today).length })
+      const resVob = await getVocabularyDashboard();
+      if (!resVob.success) {
+        toast.error("Failed to load vocabulary stats", { duration: 5000, position: "top-right" });
+        return;
+      }
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      setStats({ totalAllTime: resVob?.data?.length || 0, totalToday: 2002 })
     } finally { setLoading(false) }
   }, [router])
 
-  useEffect(() => { 
-    loadStats() 
-  }, [loadStats])
+  useEffect(() => {
+    loadStats()
+  }, [])
 
   return <div className="space-y-8">{/* unchanged layout */}
     <div className="flex items-center justify-between"><div><h1 className="text-3xl font-bold">Dashboard</h1><p className="text-muted-foreground mt-1">Track your vocabulary learning progress</p></div><Button onClick={() => setAddDialogOpen(true)} className="gap-2" size="lg"><Plus className="h-5 w-5" />Quick Add</Button></div>
