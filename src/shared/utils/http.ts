@@ -23,16 +23,21 @@ const BASE_HEADERS = {
 };
 
 const fetcher = async <T>(url: string, options?: FetchOptions): Promise<ApiResponse<T>> => {
+  const fetchOptions = {
+    method: options?.method || 'GET',
+    headers: {
+      ...BASE_HEADERS,
+      ...options?.headers,
+    },
+    body: options?.body ? JSON.stringify(options.body) : undefined,
+    ...(options &&
+      Object.fromEntries(
+        Object.entries(options).filter(([key]) => !['method', 'headers', 'body'].includes(key))
+      )),
+  };
+
   try {
-    const response = await fetch(
-      `${API_BASE_URL}${url}`,
-      options && {
-        ...options,
-        method: options.method || 'GET',
-        headers: { ...BASE_HEADERS, ...options?.headers },
-        body: options.body ? JSON.stringify(options.body) : undefined,
-      }
-    );
+    const response = await fetch(`${API_BASE_URL}${url}`, fetchOptions);
 
     const responseData: ApiOkBody<T> | ApiErrorBody = await response.json();
 
