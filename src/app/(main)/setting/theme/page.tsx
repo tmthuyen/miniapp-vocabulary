@@ -8,7 +8,7 @@ import {
   FieldTitle,
 } from '@/components/ui/field';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import useColor from '@/presentation/hooks/useColor';
+import { useColor } from '@/presentation/hooks/useColor';
 import { Monitor, Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import React from 'react';

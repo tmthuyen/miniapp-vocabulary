@@ -1,22 +1,10 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { ThemeToggle } from '@/components/theme-toggle';
-import { LogOut, BookOpen } from 'lucide-react';
 import Link from 'next/link';
 import { routes } from '@/shared/constants/routes';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import React from 'react';
 import { Sidebar, SidebarProvider } from '../ui/sidebar';
-import { Drawer } from '../ui/drawer';
 
 export const menuItems = [
   {
@@ -87,15 +75,3 @@ const Menu = ({ items = menuItems }: { items?: typeof menuItems }) => {
 };
 
 export default Menu;
-
-export function Navbar1() {
-  const router = useRouter();
-
-  const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
-    router.push('/auth/login');
-    router.refresh();
-  };
-
-  return <>Hihih</>;
-}

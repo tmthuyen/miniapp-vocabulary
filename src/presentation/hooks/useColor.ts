@@ -1,18 +1,12 @@
 import React from 'react';
+import { ColorContext } from '../contexts/ColorContext';
 
-function useColor() {
-  const [color, setColor] = React.useState<string>('blue');
+export function useColor() {
+  const context = React.useContext(ColorContext);
 
-  React.useEffect(() => {
-    const initialColor = document.documentElement.dataset.theme || 'blue';
-    setColor(initialColor);
-  }, []);
+  if (!context) {
+    throw new Error('useColor must be used within ColorProvider');
+  }
 
-  const changeColor = (newColor: 'rose' | 'emerald' | 'blue' | 'violet' | 'orange') => {
-    document.documentElement.dataset.theme = newColor;
-    setColor(newColor);
-  };
-
-  return { color, changeColor };
+  return context;
 }
-export default useColor;

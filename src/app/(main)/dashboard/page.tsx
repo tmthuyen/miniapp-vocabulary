@@ -23,16 +23,6 @@ export default function DashboardPage() {
 
   const loadStats = useCallback(async () => {
     try {
-      const meRes = await getMe();
-      if (!meRes.success || meRes.status === 401) {
-        toast.error('You need to log in to access the dashboard', {
-          duration: 5000,
-          position: 'top-right',
-        });
-        router.push('/auth/login');
-        return;
-      }
-
       const resVob = await getVocabularyDashboard();
       if (!resVob.success) {
         toast.error('Failed to load vocabulary stats', { duration: 5000, position: 'top-right' });

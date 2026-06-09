@@ -7,6 +7,6 @@ export const routes = {
   games: '/dashboard/games',
   adminUsers: '/admin/users',
   adminVocabulary: '/admin/vocabulary',
-  theme: '/settings/theme',
-  gameSettings: '/settings/game',
+  theme: '/setting/theme',
+  gameSettings: '/setting/game',
 } as const;
