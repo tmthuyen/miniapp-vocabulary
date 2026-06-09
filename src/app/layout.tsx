@@ -1,17 +1,17 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "@/components/ui/sonner";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import { ThemeProvider } from '@/components/theme-provider';
+import { Toaster } from '@/components/ui/sonner';
 
 const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-sans",
+  subsets: ['latin'],
+  variable: '--font-sans',
 });
 
 export const metadata: Metadata = {
-  title: "IELTS 8.0 Master - Vocabulary Learning",
-  description: "Master your IELTS vocabulary with IELTS 8.0 Master",
+  title: 'IELTS 8.0 Master - Vocabulary Learning',
+  description: 'Master your IELTS vocabulary with IELTS 8.0 Master',
 };
 
 export default function RootLayout({
@@ -21,8 +21,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body 
-        className={`${inter.variable} font-sans antialiased`}
+      <body
+        className={`${inter.variable} font-sans antialiased transition-colors`}
         suppressHydrationWarning
       >
         <ThemeProvider

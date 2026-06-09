@@ -1,11 +1,11 @@
-"use client"
+'use client';
 
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { ThemeToggle } from "@/components/theme-toggle"
-import { LogOut, BookOpen, Menu } from "lucide-react"
-import Link from "next/link"
-import { routes } from "@/shared/constants/routes"
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { LogOut, BookOpen } from 'lucide-react';
+import Link from 'next/link';
+import { routes } from '@/shared/constants/routes';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,79 +13,89 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from '@/components/ui/dropdown-menu';
+import React from 'react';
+import { Sidebar, SidebarProvider } from '../ui/sidebar';
+import { Drawer } from '../ui/drawer';
 
-export function Navbar() {
-  const router = useRouter()
+export const menuItems = [
+  {
+    labelGroup: 'Main',
+    items: [
+      { label: 'Dashboard', href: routes.dashboard },
+      { label: 'Games', href: routes.games },
+      { label: 'Profile', href: routes.profile },
+    ],
+  },
+  {
+    labelGroup: 'Admin',
+    items: [
+      { label: 'Admin Users', href: routes.adminUsers },
+      { label: 'Admin Vocabulary', href: routes.adminVocabulary },
+    ],
+  },
+  {
+    labelGroup: 'Settings',
+    items: [{ label: 'Theme', href: routes.theme }],
+  },
+];
 
-  const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" })
-    router.push("/auth/login")
-    router.refresh()
-  }
+const Menu = ({ items = menuItems }: { items?: typeof menuItems }) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
-    <nav className="border-b border-border bg-card">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <BookOpen className="h-6 w-6 text-primary" />
-            <h1 className="text-xl font-bold">IELTS 8.0 Master</h1>
-          </div>
-          <div className="hidden md:flex items-center gap-2">
-            {/* hover thì có hiệu ứng to lên, và nhảy lên và có gạch thẳng là class ảo (không phải underline) ở dưới  */}
-            <Link href={routes.dashboard} className="hover:text-primary hover:scale-105 hover:translate-y-[-2px] mr-2">Dashboard</Link>
-            <Link href={routes.games} className="hover:text-primary hover:scale-105 hover:translate-y-[-2px] mr-2">Games</Link>
-            <Link href={routes.profile} className="hover:text-primary hover:scale-105 hover:translate-y-[-2px] mr-2">Profile</Link>
-            <Link href={routes.adminUsers} className="hover:text-primary hover:scale-105 hover:translate-y-[-2px] mr-2">Admin Users</Link>
-            <Link href={routes.adminVocabulary} className="hover:text-primary hover:scale-105 hover:translate-y-[-2px] mr-2">Admin Vocabulary</Link>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon" className="md:hidden" aria-label="Open navigation menu">
-                <Menu className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-56 md:hidden">
-              <DropdownMenuLabel>Navigation</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild><Link href={routes.dashboard}>Dashboard</Link></DropdownMenuItem>
-              <DropdownMenuItem asChild><Link href={routes.games}>Games</Link></DropdownMenuItem>
-              <DropdownMenuItem asChild><Link href={routes.profile}>Profile</Link></DropdownMenuItem>
-              <DropdownMenuItem asChild><Link href={routes.adminUsers}>Admin Users</Link></DropdownMenuItem>
-              <DropdownMenuItem asChild><Link href={routes.adminVocabulary}>Admin Vocabulary</Link></DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button variant="outline" size="sm" onClick={() => router.back()}>Back</Button>
-          <ThemeToggle />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full">
-                <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
-                  U
+    <>
+      {!isMobile && (
+        <SidebarProvider>
+          <Sidebar>
+            {items.map((group) => (
+              <div key={group.labelGroup} className="mb-6">
+                <h2 className="text-muted-foreground mb-2 text-sm font-semibold">
+                  {group.labelGroup}
+                </h2>
+                <div className="space-y-1">
+                  {group.items.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="text-primary hover:bg-primary/10 block rounded-md px-3 py-2 text-sm font-medium"
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
                 </div>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href={routes.profile}>Profile</Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout}
-               variant="destructive"
-               className="">
-                <LogOut className="mr-2 h-4 w-4 text-destructive focus:text-primary" />
-                Log out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
-    </nav>
-  )
-}
+              </div>
+            ))}
+          </Sidebar>
+        </SidebarProvider>
+      )}
 
+      {isMobile && 'drawer'}
+    </>
+  );
+};
+
+export default Menu;
+
+export function Navbar1() {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.push('/auth/login');
+    router.refresh();
+  };
+
+  return <>Hihih</>;
+}

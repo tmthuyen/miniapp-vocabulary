@@ -1,11 +1,12 @@
 export const routes = {
-  home: "/",
-  login: "/auth/login",
-  signup: "/auth/signup",
-  dashboard: "/dashboard",
-  profile: "/dashboard/profile",
-  games: "/dashboard/games",
-  adminUsers: "/dashboard/admin/users",
-  adminVocabulary: "/dashboard/admin/vocabulary",
-} as const
-
+  home: '/',
+  login: '/auth/login',
+  signup: '/auth/signup',
+  profile: '/profile',
+  dashboard: '/dashboard',
+  games: '/dashboard/games',
+  adminUsers: '/admin/users',
+  adminVocabulary: '/admin/vocabulary',
+  theme: '/settings/theme',
+  gameSettings: '/settings/game',
+} as const;

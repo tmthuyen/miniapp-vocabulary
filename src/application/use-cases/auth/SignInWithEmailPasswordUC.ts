@@ -41,6 +41,14 @@ export class SignInWithEmailPasswordUC {
         .withStatus(400);
     }
 
+    // check status
+    if (existing.status !== 'active') {
+      throw AppError.builder()
+        .withMessage('Your account is not active. Please contact support.')
+        .withCode('INACTIVE_ACCOUNT')
+        .withStatus(403);
+    }
+
     if (existing.password_hash === null) {
       throw AppError.builder()
         .withMessage(
